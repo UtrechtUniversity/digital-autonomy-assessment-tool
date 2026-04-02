@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAAF | Digital Autonomy Assessment Framework</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2C16 2 4 6 4 14v8c0 5 5.4 8.4 12 10 6.6-1.6 12-5 12-10v-8c0-8-12-12-12-12z' fill='%23FFCD00'/%3E%3Cpath d='M16 4.5c0 0-9.5 3.2-9.5 9.5v7c0 3.8 4.2 6.5 9.5 8 5.3-1.5 9.5-4.2 9.5-8v-7c0-6.3-9.5-9.5-9.5-9.5z' fill='%23000'/%3E%3Ctext x='16' y='22.5' text-anchor='middle' font-family='Georgia,serif' font-size='16' font-weight='bold' fill='%23FFCD00'%3ED%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+  :root {
+    --uu-yellow: #FFCD00;
+    --uu-red: #C00A35;
+    --uu-black: #000000;
+    --uu-white: #FFFFFF;
+    --uu-cream: #F7F3E8;
+    --uu-warm: #F2F0ED;
+    --green: #0B7B5E;
+    --red: #C41E3A;
+    --orange: #EF6C00;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Open Sans',Arial,system-ui,sans-serif; background:#f4f3ef; color:#333; line-height:1.5; font-size:14px; }
+  h1,h2,h3,.merri { font-family:'Merriweather',Georgia,serif; }
+
+  /* === LAYOUT === */
+  .uu-top { height:6px; background:var(--uu-yellow); }
+  .app-header { background:var(--uu-black); padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+  .app-header h1 { color:white; font-size:1.1rem; font-weight:700; }
+  .app-header h1 span { color:var(--uu-yellow); }
+  .header-right { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+  .hbtn { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); border:none; padding:0.4rem 0.8rem; border-radius:5px; font-size:0.75rem; cursor:pointer; font-family:inherit; font-weight:500; transition:all 0.15s; }
+  .hbtn:hover { background:rgba(255,255,255,0.2); color:white; }
+  .hbtn.primary { background:var(--uu-yellow); color:var(--uu-black); font-weight:600; }
+  .hbtn.primary:hover { background:#ffe04a; }
+  .hbtn.help-btn { background:var(--uu-red); color:white; font-weight:600; }
+  .hbtn.help-btn:hover { background:#d41040; }
+  .hbtn.help-btn svg { width:13px; height:13px; vertical-align:-1.5px; margin-right:3px; fill:white; }
+
+  .container { max-width:1200px; margin:0 auto; padding:1rem 1.5rem 3rem; }
+
+  /* === TABS === */
+  .tab-wrapper { background:var(--uu-black); display:flex; align-items:center; position:relative; }
+  .tab-scroll-btn { background:none; border:none; color:var(--uu-yellow); font-size:1.1rem; cursor:pointer; padding:0.4rem 0.5rem; flex-shrink:0; opacity:0.7; transition:opacity 0.15s; z-index:2; }
+  .tab-scroll-btn:hover { opacity:1; }
+  .tab-scroll-btn.hidden { visibility:hidden; pointer-events:none; }
+  .tab-bar { display:flex; align-items:center; gap:2px; overflow-x:auto; flex:1; padding:0 0.3rem; scrollbar-width:none; -ms-overflow-style:none; scroll-behavior:smooth; }
+  .tab-bar::-webkit-scrollbar { display:none; }
+  .tab { padding:0.55rem 0.9rem; color:rgba(255,255,255,0.55); font-size:0.76rem; font-weight:500; cursor:pointer; border:none; background:transparent; font-family:inherit; white-space:nowrap; transition:all 0.15s; border-bottom:2px solid transparent; position:relative; flex-shrink:0; }
+  .tab:hover { color:rgba(255,255,255,0.9); }
+  .tab.active { color:white; border-bottom-color:var(--uu-yellow); font-weight:600; }
+  .tab.overview { color:var(--uu-yellow); font-weight:600; }
+  .tab.overview.active { background:rgba(255,205,0,0.08); }
+  .tab .close-tab { display:none; margin-left:0.4rem; font-size:0.65rem; opacity:0.5; }
+  .tab:hover .close-tab { display:inline; }
+  .tab .close-tab:hover { opacity:1; }
+  .tab-count { color:rgba(255,255,255,0.35); font-size:0.68rem; padding:0.3rem 0.5rem; flex-shrink:0; }
+  .add-tab { color:var(--uu-yellow); font-size:1.1rem; cursor:pointer; padding:0.3rem 0.5rem; background:transparent; border:none; font-weight:700; flex-shrink:0; }
+  .add-tab:hover { color:white; }
+
+  /* === OVERVIEW === */
+  .overview-grid { width:100%; border-collapse:separate; border-spacing:0; }
+  .overview-grid th { background:var(--uu-black); color:white; padding:0.6rem 0.8rem; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; font-weight:600; text-align:left; position:sticky; top:0; }
+  .overview-grid th:first-child { border-radius:var(--radius) 0 0 0; }
+  .overview-grid th:last-child { border-radius:0 var(--radius) 0 0; }
+  .overview-grid td { padding:0.5rem 0.8rem; font-size:0.8rem; border-bottom:1px solid #eee; background:white; }
+  .overview-grid tr:hover td { background:#fefcf5; }
+  .overview-grid .app-name { font-weight:600; color:var(--uu-black); cursor:pointer; }
+  .overview-grid .app-name:hover { text-decoration:underline; color:var(--uu-red); }
+  .score-pill { display:inline-block; padding:0.15rem 0.55rem; border-radius:10px; font-size:0.72rem; font-weight:700; min-width:2.2rem; text-align:center; }
+  .pill-good { background:#D6EFE6; color:#0B7B5E; }
+  .pill-ok { background:#fff8e1; color:#F57F17; }
+  .pill-weak { background:#fff3e0; color:#E65100; }
+  .pill-bad { background:#ffebee; color:#C41E3A; }
+  .pill-empty { background:#f5f5f5; color:#bbb; }
+  .progress-bar { width:60px; height:6px; background:#eee; border-radius:3px; display:inline-block; vertical-align:middle; margin-left:0.3rem; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+
+  /* === ASSESSMENT VIEW === */
+  .assess-header { display:flex; justify-content:space-between; align-items:start; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+  .assess-meta { display:flex; gap:1rem; flex-wrap:wrap; flex:1; }
+  .meta-field { min-width:150px; }
+  .meta-field label { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em; color:#999; font-weight:600; display:block; margin-bottom:0.2rem; }
+  .meta-field input { border:none; border-bottom:2px solid #e0ddd5; background:transparent; font-size:0.9rem; color:var(--uu-black); padding:0.25rem 0; outline:none; width:100%; font-weight:600; font-family:inherit; }
+  .meta-field input:focus { border-bottom-color:var(--uu-yellow); }
+  .mode-picker { background:var(--uu-warm); border-radius:var(--radius); padding:1rem; margin-bottom:1rem; width:100%; box-sizing:border-box; }
+  .mode-picker-label { font-size:0.82rem; color:var(--uu-black); font-weight:600; margin-bottom:0.6rem; text-align:center; }
+  .mode-picker-opts { display:flex; gap:0.5rem; }
+  .mode-opt { flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.7rem 0.8rem; border:1.5px solid #d0cdc5; border-radius:8px; background:white; cursor:pointer; font-family:inherit; font-size:0.8rem; transition:all 0.15s; }
+  .mode-opt:hover { border-color:var(--uu-yellow); background:var(--uu-cream); }
+  .mode-opt .mode-icon { font-size:1rem; line-height:1; }
+  .mode-opt .mode-text strong { font-size:0.8rem; color:var(--uu-black); display:block; }
+  .mode-opt .mode-text span { font-size:0.68rem; color:#999; }
+  .assess-controls { display:flex; flex-direction:column; align-items:flex-end; gap:0.2rem; }
+  .seg-control { display:inline-flex; border:1.5px solid #d0cdc5; border-radius:6px; overflow:hidden; }
+  .seg-btn { padding:0.35rem 0; cursor:pointer; border:none; background:white; color:#999; font-family:inherit; font-size:0.72rem; font-weight:500; transition:background 0.15s, color 0.15s; white-space:nowrap; width:110px; text-align:center; }
+  .seg-btn:not(:last-child) { border-right:1.5px solid #d0cdc5; }
+  .seg-btn.active { background:var(--uu-cream); color:var(--uu-black); font-weight:700; }
+  .seg-btn:hover:not(.active) { background:#faf8f2; color:#666; }
+  .assess-mode-hint { font-size:0.65rem; color:#aaa; text-align:right; }
+  .assess-mode-hint strong { color:var(--uu-black); font-weight:700; }
+
+  /* Score hero compact */
+  .score-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.8rem; margin-bottom:1rem; }
+  .score-card { background:white; border-radius:var(--radius); padding:1rem; box-shadow:var(--shadow); text-align:center; }
+  .score-card.main-score { border:2px solid var(--uu-yellow); }
+  .score-card .sc-label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:#999; }
+  .score-card .sc-value { font-size:2rem; font-weight:800; color:var(--uu-black); line-height:1.1; margin:0.3rem 0 0.1rem; font-family:'Open Sans',sans-serif; }
+  .score-card .sc-scale { font-size:0.9rem; font-weight:400; opacity:0.45; }
+  .score-card .sc-sub { font-size:0.65rem; color:#bbb; }
+  .score-card.risico .sc-label { color:#C00A35; }
+  .score-card.risico .sc-value { color:#C00A35; }
+  .score-card.mitigatie .sc-label { color:#0B7B5E; }
+  .score-card.mitigatie .sc-value { color:#0B7B5E; }
+  .score-card.belang .sc-label { color:#EF6C00; }
+  .score-card.belang .sc-value { color:#EF6C00; }
+
+  /* Niveau sections */
+  .niv-section { margin-bottom:0.6rem; }
+  .niv-bar { padding:0.5rem 1rem; color:white; font-weight:600; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; border-radius:var(--radius) var(--radius) 0 0; cursor:pointer; user-select:none; }
+  .niv-bar.n1 { background:#C00A35; }
+  .niv-bar.n2 { background:#0B7B5E; }
+  .niv-bar.n3 { background:#EF6C00; }
+  .niv-bar .niv-hint { font-weight:400; font-size:0.68rem; opacity:0.8; }
+  .niv-body { background:white; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+  .dim-row { border-bottom:1px solid #f0ece4; }
+  .dim-row:last-child { border-bottom:none; }
+  .dim-title { padding:0.45rem 1rem; background:var(--uu-cream); font-size:0.78rem; font-weight:600; color:var(--uu-black); display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+  .dim-title:hover { background:#efe9d8; }
+  .dim-badge { background:var(--uu-black); color:white; padding:0.1rem 0.5rem; border-radius:10px; font-size:0.68rem; font-weight:700; min-width:2.5rem; text-align:center; }
+  .dim-badge.empty { background:#ccc; }
+
+  /* Indicator column header */
+  .ind-colheader { display:grid; grid-template-columns:44px 1fr 50px 180px; padding:0.2rem 1rem; gap:0.6rem; border-bottom:1px solid #e8e4da; background:#faf8f2; }
+  .ind-colheader span { font-size:0.58rem; text-transform:uppercase; letter-spacing:0.05em; color:#bbb; font-weight:700; }
+  .ind-colheader .ch-wgt { text-align:center; }
+  .ind-colheader .ch-score { text-align:center; }
+
+  /* Indicator rows */
+  .ind-row { display:grid; grid-template-columns:44px 1fr 50px 180px; align-items:center; padding:0.5rem 1rem; gap:0.6rem; border-bottom:1px solid #f8f6f0; cursor:pointer; }
+  .ind-row:last-child { border-bottom:none; }
+  .ind-row:hover { background:#fefcf8; }
+  .ind-code { font-weight:700; color:var(--uu-black); font-size:0.75rem; background:var(--uu-cream); padding:0.1rem 0.3rem; border-radius:3px; text-align:center; }
+  .ind-info { min-width:0; }
+  .ind-title { font-size:0.8rem; font-weight:600; color:var(--uu-black); }
+  .ind-row:hover .ind-title { color:var(--uu-red); }
+  .ind-row.rub-open .ind-title { color:var(--uu-red); }
+  .ind-q { font-size:0.7rem; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dim-actions { display:inline-flex; gap:0.4rem; margin-left:auto; margin-right:0.5rem; }
+  .dim-toggle-all { font-size:0.6rem; color:#999; cursor:pointer; border:none; background:none; font-family:inherit; padding:0.1rem 0.3rem; border-radius:3px; }
+  .dim-toggle-all:hover { background:rgba(0,0,0,0.05); color:var(--uu-black); }
+  .ind-right { display:flex; align-items:center; justify-content:center; }
+
+  /* Weight */
+  .wgt-wrap { display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .wgt-label { font-size:0.5rem; text-transform:uppercase; letter-spacing:0.04em; color:#bbb; font-weight:600; }
+  .wgt { display:flex; align-items:center; gap:2px; }
+  .wgt-btn { width:18px; height:18px; border:1px solid #ddd; border-radius:3px; background:white; cursor:pointer; font-size:0.6rem; color:#aaa; display:flex; align-items:center; justify-content:center; font-family:inherit; }
+  .wgt-btn:hover { border-color:var(--uu-red); color:var(--uu-black); }
+  .wgt-val { font-size:0.75rem; font-weight:700; color:#555; min-width:0.8rem; text-align:center; }
+  .wgt-val.modified { color:var(--uu-red); background:#FFF0F0; padding:0.1rem 0.25rem; border-radius:3px; border:1px solid #E8A0A0; }
+
+  /* Score bar */
+  .sbar { display:flex; border-radius:5px; overflow:hidden; border:1.5px solid #e8e4da; }
+  .sbar-opt { width:32px; height:28px; display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.12s; color:#ccc; background:white; border:none; outline:none; font-family:inherit; }
+  .sbar-opt:hover { background:#faf8f2; color:#999; }
+  .sbar-opt.active { color:white; }
+  .sbar-opt.asc-1.active{background:#C41E3A}.sbar-opt.asc-2.active{background:#E65100}.sbar-opt.asc-3.active{background:#F9A825;color:#333}.sbar-opt.asc-4.active{background:#0B8A6F}.sbar-opt.asc-5.active{background:#0B7B5E}
+  .sbar-opt.desc-1.active{background:#0B7B5E}.sbar-opt.desc-2.active{background:#0B8A6F}.sbar-opt.desc-3.active{background:#F9A825;color:#333}.sbar-opt.desc-4.active{background:#E65100}.sbar-opt.desc-5.active{background:#C41E3A}
+  .sbar-hint { font-size:0.5rem; color:#c5bda8; text-align:center; margin-top:1px; }
+
+  /* Rubric detail */
+  .ind-detail { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+  .ind-detail.open { max-height:500px; }
+  .ind-detail-inner { padding:0.6rem 1rem 0.8rem 56px; }
+  .rub-tbl { width:100%; border-collapse:collapse; }
+  .rub-tbl td { padding:0.3rem 0.5rem; font-size:0.72rem; vertical-align:top; border-bottom:1px solid #f0ece4; }
+  .rub-tbl td:first-child { width:28px; text-align:center; font-weight:700; border-radius:3px; }
+  .rub-tbl tr:last-child td { border-bottom:none; }
+  .rub-asc .rs1 td:first-child{color:#C41E3A;background:#FFEBEE}.rub-asc .rs2 td:first-child{color:#E65100;background:#FFF3E0}.rub-asc .rs3 td:first-child{color:#F57F17;background:#FFFDE7}.rub-asc .rs4 td:first-child{color:#0B8A6F;background:#E0F4EF}.rub-asc .rs5 td:first-child{color:#0B7B5E;background:#D6EFE6}
+  .rub-desc .rs1 td:first-child{color:#0B7B5E;background:#D6EFE6}.rub-desc .rs2 td:first-child{color:#0B8A6F;background:#E0F4EF}.rub-desc .rs3 td:first-child{color:#F57F17;background:#FFFDE7}.rub-desc .rs4 td:first-child{color:#E65100;background:#FFF3E0}.rub-desc .rs5 td:first-child{color:#C41E3A;background:#FFEBEE}
+  .rub-tbl td:last-child { color:#555; line-height:1.35; }
+  .hulp { margin-top:0.4rem; padding:0.35rem 0.5rem; background:#f7f5ee; border-left:3px solid var(--uu-yellow); border-radius:0 3px 3px 0; font-size:0.68rem; color:#999; }
+
+  /* Remarks field */
+  .ind-remark { margin:0.4rem 0 0; padding:0; }
+  .ind-remark textarea { width:100%; border:1.5px solid #e0ddd5; border-radius:5px; padding:0.4rem 0.6rem; font-size:0.72rem; font-family:inherit; resize:vertical; min-height:2rem; max-height:6rem; color:#555; background:#faf8f2; }
+  .ind-remark textarea:focus { border-color:var(--uu-yellow); outline:none; background:white; }
+  .ind-remark textarea::placeholder { color:#ccc; }
+
+  /* Tooltips for jargon -- positioned via JS to avoid clipping */
+  .tt { border-bottom:1px dotted #C00A35; color:inherit; cursor:help; font-weight:600; }
+  .tt-popup { position:fixed; background:var(--uu-black); color:white; padding:0.5rem 0.7rem; border-radius:5px; font-size:0.72rem; font-weight:400; line-height:1.45; max-width:320px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.3); pointer-events:none; text-align:left; opacity:0; transition:opacity 0.12s; }
+  .tt-popup.visible { opacity:1; }
+  @media(max-width:600px) { .tt-popup { max-width:240px; font-size:0.65rem; } }
+
+  /* Info panel */
+  .info-panel { background:white; border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1rem; box-shadow:var(--shadow); }
+  .info-panel h3 { font-size:0.85rem; color:var(--uu-black); margin-bottom:0.6rem; }
+  .formula-box { margin-top:0.6rem; padding:0.6rem; background:var(--uu-cream); border-radius:6px; font-size:0.72rem; color:#666; }
+  .formula-box code { background:white; padding:0.1rem 0.3rem; border-radius:2px; font-size:0.75rem; color:var(--uu-black); font-weight:600; }
+
+  /* Quadrant */
+  .quadrant-wrap { margin-top:1rem; background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:1.2rem; }
+  .quadrant-wrap h3 { font-size:0.85rem; color:var(--uu-black); margin-bottom:0.8rem; }
+  .quadrant-outer { display:flex; gap:0; align-items:stretch; }
+  .q-ylabel { writing-mode:vertical-lr; transform:rotate(180deg); font-size:0.75rem; font-weight:700; color:#888; text-align:center; padding-right:0.5rem; display:flex; align-items:center; justify-content:center; }
+  .q-side { display:flex; align-items:stretch; }
+  .q-main { flex:1; display:flex; flex-direction:column; }
+  .q-yticks { display:flex; flex-direction:column; justify-content:space-between; padding:0 0.3rem; font-size:0.62rem; color:#aaa; font-weight:600; }
+  .quadrant-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; flex:1; position:relative; min-height:320px; border:2px solid #e0ddd5; border-radius:6px; overflow:hidden; }
+  .q-cell { padding:1.2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; }
+  .q-cell.q-tl { background:#e6f7f0; border-right:2px solid #d0cdc5; border-bottom:2px solid #d0cdc5; }
+  .q-cell.q-tr { background:#fdf6e3; border-bottom:2px solid #d0cdc5; }
+  .q-cell.q-bl { background:#fdf6e3; border-right:2px solid #d0cdc5; }
+  .q-cell.q-br { background:#fce8ec; }
+  .q-label { font-family:'Merriweather',Georgia,serif; font-size:1.1rem; font-weight:700; font-style:italic; margin-bottom:0.3rem; }
+  .q-tl .q-label { color:#0B7B5E; }
+  .q-tr .q-label { color:#EF6C00; }
+  .q-bl .q-label { color:#EF6C00; }
+  .q-br .q-label { color:#C00A35; }
+  .q-desc { font-size:0.75rem; color:#666; line-height:1.3; }
+  .q-xlabel { font-size:0.75rem; font-weight:700; color:#888; text-align:center; padding-top:0.5rem; }
+  .q-xticks-row { display:flex; }
+  .q-side-spacer { flex-shrink:0; width:2rem; }
+  .q-xticks { flex:1; display:flex; justify-content:space-between; font-size:0.62rem; color:#aaa; font-weight:600; padding:0.2rem 0; }
+  /* App dots plotted on quadrant */
+  .q-dots-layer { position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none; }
+  .q-dot { position:absolute; width:28px; height:28px; border-radius:50%; background:var(--uu-yellow); border:2.5px solid var(--uu-black); display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:800; color:var(--uu-black); pointer-events:auto; cursor:pointer; transform:translate(-50%,-50%); box-shadow:0 2px 6px rgba(0,0,0,0.2); transition:transform 0.15s, box-shadow 0.15s; z-index:5; }
+  .q-dot:hover { transform:translate(-50%,-50%) scale(1.25); box-shadow:0 3px 10px rgba(0,0,0,0.3); z-index:10; }
+  .q-dot-tip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--uu-black); color:white; padding:0.25rem 0.5rem; border-radius:4px; font-size:0.68rem; font-weight:600; white-space:nowrap; pointer-events:none; }
+  .q-dot:hover .q-dot-tip { display:block; }
+  .q-legend { margin-top:0.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; font-size:0.68rem; color:#888; }
+  .q-legend-dot { width:12px; height:12px; border-radius:50%; background:var(--uu-yellow); border:2px solid var(--uu-black); display:inline-block; vertical-align:middle; margin-right:3px; }
+
+  /* Hidden view */
+  .view { display:none; }
+  .view.active { display:block; }
+
+  /* === MODAL === */
+  .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:flex-start; padding:2rem; overflow-y:auto; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:white; border-radius:var(--radius); max-width:800px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 8px 30px rgba(0,0,0,0.25); }
+  .modal-header { padding:1rem 1.5rem; border-bottom:3px solid var(--uu-yellow); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:white; z-index:1; border-radius:var(--radius) var(--radius) 0 0; }
+  .modal-header h2 { font-size:1.1rem; color:var(--uu-black); }
+  .modal-close { background:none; border:none; font-size:1.3rem; cursor:pointer; color:#999; padding:0.2rem 0.5rem; }
+  .modal-close:hover { color:var(--uu-red); }
+  .modal-body { padding:1.5rem; }
+  .modal-body h3 { font-size:0.95rem; color:var(--uu-black); margin:1.2rem 0 0.5rem; }
+  .modal-body h3:first-child { margin-top:0; }
+  .modal-body p { font-size:0.85rem; color:#555; margin-bottom:0.6rem; line-height:1.6; }
+  .modal-body ul { font-size:0.85rem; color:#555; margin:0.3rem 0 0.6rem 1.2rem; line-height:1.6; }
+  .modal-body .tip { background:var(--uu-cream); border-left:3px solid var(--uu-yellow); padding:0.6rem 0.8rem; border-radius:0 6px 6px 0; font-size:0.8rem; color:#666; margin:0.6rem 0; }
+  .modal-body .tip strong { color:var(--uu-black); }
+  .modal-body code { background:#f0ece4; padding:0.1rem 0.3rem; border-radius:3px; font-size:0.8rem; }
+
+  /* === DROPDOWN MENU === */
+  .dropdown { position:relative; display:inline-block; }
+  .dropdown-menu { display:none; position:absolute; left:0; top:100%; background:white; border-radius:var(--radius); box-shadow:0 4px 16px rgba(0,0,0,0.18); z-index:200; min-width:240px; overflow:hidden; margin-top:4px; }
+  .dropdown-menu.open { display:block; }
+  .dropdown-item { display:block; width:100%; padding:0.5rem 1rem; border:none; background:none; cursor:pointer; font-family:inherit; font-size:0.78rem; color:#333; text-align:left; transition:background 0.1s; }
+  .dropdown-item:hover { background:var(--uu-cream); }
+  .dropdown-item small { display:block; color:#999; font-size:0.68rem; margin-top:1px; }
+  .dropdown-sep { height:1px; background:#eee; margin:2px 0; }
+
+  /* === FOOTER === */
+  footer { border-top:3px solid var(--uu-yellow); margin-top:2rem; padding:1.5rem 2rem; background:var(--uu-black); color:rgba(255,255,255,0.7); }
+  .footer-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+  .footer-left { font-size:0.72rem; line-height:1.5; }
+  .footer-left strong { color:white; }
+  .footer-left a { color:var(--uu-yellow); text-decoration:none; }
+  .footer-left a:hover { text-decoration:underline; }
+  .footer-right { display:flex; align-items:center; gap:0.6rem; }
+  .cc-badge { display:inline-flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; font-size:0.65rem; color:rgba(255,255,255,0.8); text-decoration:none; transition:background 0.15s; }
+  .cc-badge:hover { background:rgba(255,255,255,0.15); }
+  .cc-badge svg { width:14px; height:14px; fill:rgba(255,255,255,0.8); }
+
+  @media(max-width:800px) {
+    .score-row { grid-template-columns:1fr 1fr; }
+    .ind-row { grid-template-columns:36px 1fr 40px 150px; }
+    .ind-colheader { grid-template-columns:36px 1fr 40px 150px; }
+    .info-grid { grid-template-columns:1fr; }
+    .overview-grid { font-size:0.7rem; }
+    .app-header { padding:0.8rem 1rem; }
+    .footer-inner { flex-direction:column; text-align:center; }
+  }
+  @media print { .tab-wrapper,.header-right,.wgt-btn,.add-tab,.assess-controls,footer,.tab-scroll-btn { display:none; } body { background:white; } }
+</style>
+</head>
+<body>
+<div class="uu-top"></div>
+<div class="app-header">
+  <h1><span>DAAF</span> Digital Autonomy Assessment Framework</h1>
+  <div class="header-right">
+    <div class="dropdown">
+      <button class="hbtn" onclick="toggleDropdown('importMenu')">Importeer &#9662;</button>
+      <div class="dropdown-menu" id="importMenu">
+        <button class="dropdown-item" onclick="importData();closeDropdowns()">JSON importeren<small>Eerder geexporteerde assessments</small></button>
+        <div class="dropdown-sep"></div>
+        <button class="dropdown-item" onclick="importCSVApps();closeDropdowns()">Applicatielijst (CSV)<small>Bulk: meerdere applicaties in een keer</small></button>
+        <button class="dropdown-item" onclick="downloadCSVTemplate();closeDropdowns()">Download CSV-template<small>Templatebestand voor bulk-import</small></button>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="hbtn" onclick="toggleDropdown('exportMenu')">Exporteer &#9662;</button>
+      <div class="dropdown-menu" id="exportMenu">
+        <button class="dropdown-item" onclick="exportAll();closeDropdowns()">JSON (volledig)<small>Alle data, scores en wegingen</small></button>
+        <div class="dropdown-sep"></div>
+        <button class="dropdown-item" onclick="exportCSV();closeDropdowns()">CSV (samenvatting)<small>Scores per dimensie en niveau</small></button>
+        <button class="dropdown-item" onclick="exportODF();closeDropdowns()">CSV (gedetailleerd)<small>Alle indicatorscores per applicatie</small></button>
+      </div>
+    </div>
+    <button class="hbtn" id="headerWeightsBtn" onclick="openWeightsModalCurrent()" style="display:none">Wegingen aanpassen</button>
+    <button class="hbtn help-btn" onclick="openHelp()"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>Handleiding</button>
+  </div>
+</div>
+
+<div class="tab-wrapper">
+  <button class="tab-scroll-btn hidden" id="tabScrollLeft" onclick="scrollTabs(-200)">&lsaquo;</button>
+  <div class="tab-bar" id="tabBar" onscroll="updateScrollBtns()">
+    <button class="tab overview active" onclick="showView('overview')">Overzicht</button>
+    <button class="add-tab" onclick="addApp()" title="Applicatie toevoegen">+</button>
+  </div>
+  <span class="tab-count" id="tabCount"></span>
+  <button class="tab-scroll-btn hidden" id="tabScrollRight" onclick="scrollTabs(200)">&rsaquo;</button>
+</div>
+
+<div class="container">
+  <!-- OVERVIEW VIEW -->
+  <div class="view active" id="view-overview">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
+      <h2 class="merri" style="font-size:1.1rem;color:var(--uu-black)">Assessment overzicht</h2>
+      <button class="hbtn primary" onclick="addApp()" style="font-size:0.8rem">+ Applicatie toevoegen</button>
+    </div>
+    <div id="overviewContent">
+      <div style="text-align:center;padding:3rem;color:#bbb">
+        <p style="font-size:1.2rem;margin-bottom:0.5rem">Nog geen applicaties beoordeeld</p>
+        <p style="font-size:0.85rem">Klik op <strong>+ Applicatie toevoegen</strong> om te beginnen, of importeer een applicatielijst via CSV.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP VIEWS (dynamically created) -->
+  <div id="appViews"></div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="merri">Handleiding DAAF Assessment Tool</h2>
+      <button class="modal-close" onclick="closeHelp()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <h3>Wat is het DAAF?</h3>
+      <p>Het Digital Autonomy Assessment Framework (DAAF) helpt organisaties om de digitale autonomie van hun applicatielandschap te beoordelen. Het framework meet 22 indicatoren verdeeld over 8 dimensies en 3 analyseniveaus.</p>
+
+      <h3>Hoe werkt het?</h3>
+      <p>Het assessment verloopt in vier stappen:</p>
+      <ul>
+        <li><strong>Applicatie toevoegen:</strong> klik op "+ Applicatie toevoegen" of importeer een lijst via CSV</li>
+        <li><strong>Indicatoren scoren:</strong> geef elke indicator een score van 1 tot 5. Klik op een indicator voor scorebeschrijvingen en toelichting</li>
+        <li><strong>Resultaat bekijken:</strong> scores worden automatisch berekend. Het overzicht toont alle applicaties naast elkaar</li>
+        <li><strong>Exporteren:</strong> sla resultaten op als JSON of CSV</li>
+      </ul>
+
+      <h3>De drie analyseniveaus</h3>
+      <p><strong style="color:var(--uu-red)">Niveau 1: Risico-exposure</strong> (dimensies A-B). Meet hoe groot het externe risico is. Een lage score (1) betekent weinig risico, een hoge score (5) veel risico.</p>
+      <p><strong style="color:var(--green)">Niveau 2: Mitigatie-capaciteit</strong> (dimensies C-E). Meet hoe goed de organisatie risico's kan beheersen. Een lage score (1) is zwak, een hoge score (5) is sterk.</p>
+      <p><strong style="color:#555">Niveau 3: Strategisch belang</strong> (dimensies F-H). Meet hoe belangrijk de applicatie is. Een lage score (1) is weinig belang, een hoge score (5) is kritiek.</p>
+
+      <div class="tip"><strong>Let op de kleurrichting:</strong> Bij niveau 1 en 3 is score 1 groen (goed vanuit autonomieperspectief), bij niveau 2 is score 5 groen (sterke mitigatie).</div>
+
+      <h3>Berekening</h3>
+      <p>De autonomiescore wordt in vier stappen berekend:</p>
+      <ul>
+        <li><strong>Stap 1, Dimensiescore:</strong> Per dimensie het gewogen gemiddelde van de indicatorscores. De weging bepaalt hoeveel invloed elke indicator heeft.</li>
+        <li><strong>Stap 2, Niveauscore:</strong> Per niveau het gemiddelde van de dimensiescores. Dimensies wegen gelijk.</li>
+        <li><strong>Stap 3, Ruwe score:</strong> <code>Mitigatie / (Risico x Belang)</code>. Bereik: 0,04 (worst case) tot 5,0 (best case).</li>
+        <li><strong>Stap 4, Normalisatie:</strong> De ruwe score wordt via een logaritmische schaal omgezet naar 1-10.</li>
+      </ul>
+      <div class="tip"><strong>Waarom logaritmisch?</strong> De formule deelt Mitigatie (max 5) door Risico x Belang (max 25). Daardoor liggen de meeste ruwe scores tussen 0,1 en 0,5. Zonder correctie zou 90% van de applicaties een eindscore tussen 1 en 3 krijgen, onbruikbaar om te vergelijken. De logaritmische schaal spreidt deze scores uit over het hele bereik van 1 tot 10, zodat verschillen tussen applicaties zichtbaar en vergelijkbaar worden.</div>
+      <p><strong>Vuistregels:</strong> 7+ = goede positie (groen), 5-7 = acceptabel (oranje), 3-5 = zorgwekkend (donkeroranje), &lt;3 = kritiek (rood).</p>
+
+      <h3>Wat zegt de score?</h3>
+      <p>De autonomiescore is geen maat voor "hoe digitaal autonoom is deze applicatie" maar voor <strong>hoe urgent is het autonomieprobleem</strong>. De score combineert drie dingen: hoe groot is het risico, hoe goed kun je het beheersen, en hoe belangrijk is de applicatie.</p>
+      <p>Een <strong>hoge score</strong> kan twee dingen betekenen: de risico's zijn goed gemitigeerd (sterke contracten, alternatieven beschikbaar, kennis in huis), of de applicatie heeft weinig strategisch belang (en dus is het autonomieprobleem minder urgent). Beide situaties zijn positief vanuit besluitvorming: er is geen acute actie nodig.</p>
+      <p>Een <strong>lage score</strong> betekent: er is een combinatie van hoog risico, zwakke mitigatie en/of hoog strategisch belang. Dat vraagt om actie: migreren, mitigeren of bewust accepteren.</p>
+      <div class="tip"><strong>Verbeteren:</strong> Strategisch belang (niveau 3) ligt grotendeels vast; een applicatie wordt niet minder belangrijk. Verbeteringen zitten in <strong>Risico-exposure verlagen</strong> (niveau 1, bijv. migreren naar EU-provider) en <strong>Mitigatie-capaciteit verhogen</strong> (niveau 2, bijv. alternatieven ontwikkelen, contracten versterken, kennis opbouwen). Gebruik de drie niveauscores apart om te bepalen waar de grootste winst te behalen is.</div>
+
+      <h3>Het kwadrant</h3>
+      <p>Het kwadrant toont applicaties op twee assen: <strong>Risico x Belang</strong> (horizontaal) en <strong>Mitigatie</strong> (verticaal). Twee applicaties met dezelfde 1-10 score kunnen op verschillende plekken in het kwadrant staan, waardoor de aanbevolen actie verschilt.</p>
+
+      <h3>Wegingen aanpassen</h3>
+      <p>Elke indicator heeft een standaardweging (2 of 3). Via het scherm "Wegingen aanpassen" kun je de wegingen aanpassen (1-5). De weging bepaalt hoeveel invloed een indicator heeft <strong>binnen zijn dimensie</strong>. Bijvoorbeeld: als je C1 (Alternatief beschikbaar) op weging 5 zet en C2 op weging 1, telt C1 vijf keer zo zwaar mee in de dimensiescore van "Technische weerbaarheid". Aangepaste wegingen worden rood weergegeven. Doe dit alleen in overleg met je organisatie of sector om onderlinge vergelijkbaarheid te behouden.</p>
+
+      <h3>Opmerkingen per indicator</h3>
+      <p>Bij elke indicator kun je een opmerking plaatsen om je score te onderbouwen. Dit is optioneel maar aangeraden: het maakt je beoordeling transparant en reproduceerbaar. Opmerkingen worden meegenomen bij JSON-export en -import.</p>
+
+      <h3>Quick scan</h3>
+      <p>Schakel naar "Quick scan" om alleen de 9 kernindicatoren te tonen (1 per dimensie + A3 Hosting). De berekening werkt identiek, maar is gebaseerd op minder datapunten. De score is <strong>indicatief</strong>; voor een volledige beoordeling gebruik je het volledige assessment.</p>
+
+      <h3>Importeren en exporteren</h3>
+      <p><strong>JSON importeren:</strong> Laad eerder geexporteerde assessments weer in. Alle scores, wegingen en metadata blijven behouden.</p>
+      <p><strong>Applicatielijst (CSV):</strong> Importeer een lijst met applicatienamen om snel meerdere applicaties aan te maken. Download eerst het CSV-template als voorbeeld.</p>
+      <p><strong>Exportformaten:</strong></p>
+      <ul>
+        <li><strong>JSON:</strong> Volledig: alle data, scores, wegingen en berekende resultaten. Geschikt voor herimport.</li>
+        <li><strong>CSV:</strong> Samenvatting per applicatie met scores per dimensie en niveau. Geschikt voor verdere analyse in Excel.</li>
+        <li><strong>CSV (gedetailleerd):</strong> Alle individuele indicatorscores per applicatie. Semicolon-gescheiden met BOM voor Excel-compatibiliteit.</li>
+      </ul>
+
+      <h3>Data opslaan</h3>
+      <p>Alle ingevulde data wordt automatisch opgeslagen in je browser (localStorage). Je kunt dus je browser sluiten en later verdergaan. Exporteer regelmatig een JSON-backup voor zekerheid.</p>
+
+      <div class="tip"><strong>Meerdere beoordelaars?</strong> Laat elke beoordelaar het assessment onafhankelijk invullen en exporteer de resultaten als JSON. Een coordinator kan de bestanden importeren en de scores vergelijken in het overzicht.</div>
+    </div>
+  </div>
+</div>
+
+<!-- WEIGHTS MODAL -->
+<div class="modal-overlay" id="weightsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="merri">Wegingen aanpassen</h2>
+      <button class="modal-close" onclick="closeWeightsModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="tip"><strong>Wat zijn wegingen?</strong> De wegingen bepalen hoeveel invloed elke indicator heeft binnen zijn dimensie. Standaardwegingen zijn afgestemd op het DAAF-model. Pas wegingen alleen aan in overleg met je organisatie of sector, anders worden resultaten onderling niet vergelijkbaar.</div>
+      <div id="weightsContent"></div>
+      <button class="hbtn primary" onclick="resetWeights()" style="margin-top:1rem;width:100%;text-align:center">Reset naar standaard</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <strong>DAAF v0.8.1</strong> | &copy; 2026 Universiteit Utrecht | Tim van Neerbos<br>
+      Vrij te gebruiken door onderwijs-, non-profit- en overheidsorganisaties. Niet voor commercieel gebruik.<br>
+      Verbeteringen graag communiceren aan <a href="mailto:t.m.vanneerbos@uu.nl">t.m.vanneerbos@uu.nl</a>
+    </div>
+    <div class="footer-right">
+      <a class="cc-badge" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="30"/><text x="32" y="38" text-anchor="middle" fill="#000000" font-size="18" font-weight="bold" font-family="Arial">CC</text></svg>
+        CC BY-NC-SA 4.0
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// === INDICATOR DEFINITIONS ===
+const INDICATORS=[
+{code:'A1',title:'Jurisdictie leverancier',dim:'A',dn:'Geopolitiek risico',niv:1,w:3,q:'Onder welke jurisdictie valt de leverancier?',r:['EU/EER-jurisdictie. Geen extraterritoriale claims. Volledige EU-bescherming.','EU/EER met beperkte extraterritoriale claims. CLOUD Act n.v.t.','Adequaatheidsbesluit, maar extraterritoriale wetgeving (CLOUD Act, FISA 702) geeft buitenlandse overheid potentieel toegang.','Geen adequaatheidsbesluit maar contractuele waarborgen (SCCs). Juridische bescherming beperkt.','Geen adequaatheidsbesluit, geen waarborgen. Directe toegang buitenlandse overheden.'],h:'Waar is de leverancier gevestigd? Extraterritoriale wetgeving? Adequaatheidsbesluit? Let op: het EU-US Data Privacy Framework (2023) is het derde adequaatheidsbesluit voor de VS; de vorige twee zijn door het Europese Hof vernietigd. De onderliggende wetgeving (CLOUD Act, FISA 702) is echter niet veranderd. Weeg zelf of je dit als score 3 of 4 beschouwt.'},
+{code:'A2',title:'Sanctie- en geopolitiek risico',dim:'A',dn:'Geopolitiek risico',niv:1,w:2,q:'Hoe groot is het geopolitieke risico voor de dienstverlening?',r:['Stabiele relaties met EU. Geen sanctierisico.','Minimaal risico. Geen recente spanningen.','Enig risico door verschuivende handelsrelaties.','Verhoogd risico. Geopolitieke spanningen of handelsconflicten. Nog geen voorbeelden van directe gevolgen voor Europese partijen.','Hoog risico. Actieve sancties of beperkingen. Voorbeelden van dienstverstoring of blokkade voor Europese partijen.'],h:'Actuele sancties of handelsgeschillen? Eerder diensten beperkt aan Europese partijen? Houd ook rekening met ideologische verschillen (normen en waarden) tussen de leverancier/overheid en de Europese context.'},
+{code:'A3',title:'Hosting en datalocatie',dim:'A',dn:'Geopolitiek risico',niv:1,w:2,q:'Waar worden data en applicatie fysiek gehost en hoe is dat geborgd?',r:['Data uitsluitend in EU/EER. Contractueel vastgelegd.','Data in EU/EER. Backups of replicatie mogelijk in land met adequaatheidsbesluit.','Data in EU/EER, maar geen contractuele garantie over locatie. Kan wijzigen.','Data deels buiten EU, met contractuele waarborgen (SCCs of adequaatheidsbesluit).','Data buiten EU, geen waarborgen, of onduidelijk waar data staat.'],h:'Waar staan de servers fysiek? Is de data- en applicatielocatie contractueel vastgelegd? Kunnen backups of replicatie buiten de EU terechtkomen? Let op: data en applicatie kunnen op verschillende locaties draaien (bijv. applicatie in Ierland, database in Frankfurt, beheerconsole in de VS). Check of er ergens in de keten een niet-Europese jurisdictie meespeelt en neem de slechtste jurisdictie als uitgangspunt.'},
+{code:'B1',title:'Vendor concentratie',dim:'B',dn:'Leveranciersafhankelijkheid',niv:1,w:3,q:'Hoeveel producten en diensten gebruik je van dezelfde leverancier?',r:['1 product of dienst bij deze leverancier.','2-3 producten/diensten bij deze leverancier.','4-6 producten/diensten bij deze leverancier.','7-15 producten/diensten bij deze leverancier.','Heel ecosysteem (>15 producten/diensten) bij deze leverancier.'],h:'Tel alle producten, diensten, licenties en platformen die je van deze leverancier gebruikt, zowel afgenomen diensten als gekochte software. Denk ook aan onderliggende platformen (bijv. Azure AD, SharePoint, Intune naast Office 365).'},
+{code:'C1',title:'Alternatief beschikbaar',dim:'C',dn:'Technische weerbaarheid',niv:2,w:3,q:'Bestaan er vergelijkbare diensten als vervanging?',r:['Geen alternatief. Uniek product zonder concurrenten.','Alternatief bestaat maar onvolwassen of functioneel beperkt.','Meerdere alternatieven bij vergelijkbare organisaties. Dekt het meeste.','Volwassen alternatieven incl. Europese optie.','Breed aanbod incl. Europese en open source opties. Competitieve markt.'],h:'Welke alternatieven? Gebruikt door andere universiteiten? Europees/open source?'},
+{code:'C2',title:'Migratiecomplexiteit',dim:'C',dn:'Technische weerbaarheid',niv:2,w:3,q:'Hoe lang duurt het om over te stappen naar een alternatief?',r:['Meer dan 2 jaar.','1-2 jaar.','6-12 maanden.','3-6 maanden.','Minder dan 3 maanden. Of: self-hosting optie direct beschikbaar.'],h:'Schat de doorlooptijd van een volledige migratie. Houd rekening met: datavolume, aantal koppelingen, leveranciersspecifieke onderdelen, beschikbaarheid van migratietools, en benodigde aanpassingen aan werkprocessen. Neem naast doorlooptijd ook de verwachte kosten mee in je afweging (inhuur, licenties, omscholing).'},
+{code:'C3',title:'Data-portabiliteit',dim:'C',dn:'Technische weerbaarheid',niv:2,w:3,q:'Kunnen we data volledig en bruikbaar exporteren?',r:['Geen export mogelijk. Data alleen via leverancierssysteem.','Beperkte handmatige export. Geen metadata, onbruikbaar formaat.','Export in gangbare formaten, redelijk volledig. Mogelijk ontbreken metadata.','Volledige export in open formaten met API. Inclusief metadata.','Volledige portabiliteit: open formaten, metadata, historie, relaties. Direct bruikbaar.'],h:'Kan alle data geexporteerd? Welk formaat? API? Metadata meegenomen? Als de applicatie ook self-hosted beschikbaar is, kan dat de portabiliteit aanzienlijk verbeteren.'},
+{code:'C4',title:'Encryptiebeheer',dim:'C',dn:'Technische weerbaarheid',niv:2,w:2,opt:true,q:'Controle over versleuteling? (optioneel)',r:['Geen inzicht in of en hoe data versleuteld is.','Versleuteld, leverancier beheert sleutels volledig.','Versleuteld. Leverancier beheert de sleutels, maar met transparant en gedocumenteerd beleid over sleutelbeheer.','BYOK: eigen sleutels inbrengen en beheren.','Client-side encryption: data versleuteld voor verzending met eigen sleutels.'],h:'Het gaat hier om controle over de encryptiesleutels, niet om of encryptie nodig is. Wie beheert de sleutels bepaalt wie bij de data kan, ook bij een dataverzoek van een buitenlandse overheid of bij vertrek van de leverancier.'},
+{code:'C5',title:'Transparantie en openheid software',dim:'C',dn:'Technische weerbaarheid',niv:2,w:3,q:'Is de broncode beschikbaar en onafhankelijk te gebruiken?',r:['Volledig gesloten. Geen broncode, geen inzicht.','Gesloten met openbare API-documentatie. Beperkt inzicht.','Deels open source, kern gesloten. Of source-available onder beperkte licentie.','Open source, actieve community, permissive licentie. Mogelijk om een onafhankelijke kopie (fork) te maken.','Volledig open source, meerdere partijen bieden ondersteuning. Overstappen naar een andere partij of een fork (laten) doorontwikkelen is realistisch.'],h:'Broncode beschikbaar? Licentie? Community? Onafhankelijk (laten) doorontwikkelen mogelijk (fork)?'},
+{code:'D1',title:'Interne expertise en kennisborging',dim:'D',dn:'Organisatorische weerbaarheid',niv:2,w:3,q:'Hoeveel interne kennis hebben we over dit systeem?',r:['Geen interne kennis. Volledig afhankelijk van leverancier.','Kennis bij een of twee personen, niet vastgelegd.','Kennis bij meerdere personen, basisdocumentatie aanwezig.','Kennis breed gedeeld en gedocumenteerd. Niet persoonsafhankelijk.','Kennis structureel geborgd. Volledige documentatie, periodiek bijgewerkt.'],h:'Denk aan alle relevante kennis: functioneel (wat doet het systeem), technisch (configuratie, koppelingen), data (welke data zit erin, hoe exporteer je die). Niet alleen technisch beheer. Wat gebeurt er als de belangrijkste expert vertrekt?'},
+{code:'D2',title:'Exit-plan aanwezig',dim:'D',dn:'Organisatorische weerbaarheid',niv:2,w:3,q:'Is er een concreet plan voor als we moeten overstappen?',r:['Geen exit-plan. Nooit over nagedacht.','Besproken maar niets concreet. Geen stappen of tijdlijn.','Globaal plan, niet getest. Niet gedetailleerd genoeg.','Gedetailleerd met stappen, tijdlijn, risico\'s. Verantwoordelijkheden belegd.','Volledig, getest via proefmigratie, periodiek bijgewerkt. Incl. communicatieplan.'],h:'Exit-plan? Hoe gedetailleerd? Getest? Wanneer bijgewerkt?'},
+{code:'D3',title:'Backup-strategie',dim:'D',dn:'Organisatorische weerbaarheid',niv:2,w:2,q:'Onafhankelijke kopie van data buiten leverancier?',r:['Geen onafhankelijke backup. Alles alleen bij leverancier.','Leverancier maakt backups, niet verifieerbaar. Geen eigen kopie.','Periodiek kopie, beperkt, terugzetten niet getest.','Volledige backup buiten leverancier, regelmatig geverifieerd.','Volledige backup met bewezen terugzetprocedure. Regelmatig getest.'],h:'Backup buiten leverancier? Volledig? Terugzetten getest?'},
+{code:'E1',title:'Exit-clausules en transitieregeling',dim:'E',dn:'Contractuele weerbaarheid',niv:2,w:3,q:'Wat is contractueel geregeld over data-overdracht bij beëindiging?',r:['Geen afspraken over beëindiging.','Minimale bepalingen, zonder termijn of formaat.','Exit-clausules met transitieperiode aanwezig.','Uitgebreide exit-regeling: open formaten, transitieperiode, actieve medewerking leverancier.','Uitgebreide exit-regeling met afdwingbare consequenties bij niet-nakoming (boeteclausule, escalatieprocedure, verwijdergarantie).'],h:'Contract over beëindiging? Formaat data? Transitieperiode? Consequenties?'},
+{code:'E2',title:'Contractuele flexibiliteit',dim:'E',dn:'Contractuele weerbaarheid',niv:2,w:2,q:'Hoe snel kun je contractueel weg bij deze leverancier?',r:['Langlopend (>3 jaar), niet tussentijds opzegbaar.','Meerjarig, opzegtermijn langer dan 12 maanden.','Jaarcontract, 6-12 maanden opzegtermijn.','Flexibel opzegbaar, 3-6 maanden opzegtermijn.','Maandelijks opzegbaar of betalen naar gebruik.'],h:'Kijk naar de contractuele binding: looptijd, opzegtermijn en automatische verlenging. Let ook op licentievoorwaarden die de leverancier eenzijdig kan wijzigen (prijsverhogingen, gebruiksbeperkingen, feature-verwijdering). De technische doorlooptijd van een migratie valt onder C2 (Migratiecomplexiteit).'},
+
+{code:'F1',title:'Impact bij uitval',dim:'F',dn:'Organisatorisch belang',niv:3,w:3,q:'Wat is de impact als dit systeem uitvalt?',r:['Geen merkbare impact bij uitval.','Minimale hinder. Organisatie draait door.','Meerdere processen verstoord maar niet stilgevallen.','Belangrijke processen stilgevallen.','Organisatiebrede stilstand.'],h:'Stel dat het systeem 48 uur uitvalt. Wat is de impact? Dit geldt voor alle processen: onderwijs, onderzoek en bedrijfsvoering. Weeg mee: het aantal getroffen gebruikers, de beschikbaarheid van workarounds, en hoe kritiek de getroffen processen zijn.'},
+{code:'F2',title:'Integratie-afhankelijkheden',dim:'F',dn:'Organisatorisch belang',niv:3,w:2,q:'Hoeveel systemen zijn afhankelijk van dit systeem?',r:['Losstaand, geen koppelingen.','1-2 koppelingen.','3-5 koppelingen.','5-10 koppelingen.','Centraal knooppunt (>10 koppelingen).'],h:'Hoeveel andere systemen zijn gekoppeld aan dit systeem? Als dit systeem uitvalt, welke andere systemen vallen dan ook (deels) uit?'},
+{code:'G1',title:'Persoonsgegevens',dim:'G',dn:'Data-gevoeligheid',niv:3,w:3,q:'Welke persoonsgegevens worden verwerkt?',r:['Geen persoonsgegevens.','Basisgegevens: naam, e-mail, functie. Beperkt aantal.','Studie-/werkgegevens, beoordelingen, financieel. Significant.','Bijzondere persoonsgegevens of grootschalige verwerking.','Grootschalig bijzondere gegevens van kwetsbare groepen.'],h:'Welke gegevens? Gevoelige categorieen? Hoeveel personen? DPIA?'},
+{code:'G2',title:'Onderzoeksdata en kennisveiligheid',dim:'G',dn:'Data-gevoeligheid',niv:3,w:3,q:'Hoe gevoelig zijn de onderzoeksgegevens en kennis in dit systeem?',r:['Geen onderzoeksdata.','Alleen openbare/gepubliceerde data.','Vertrouwelijk, nog niet gepubliceerd. Voortijdige toegang door derden is onwenselijk.','Gevoelig of strategisch waardevol. Concurrentiegevoelig.','Nationale veiligheid, exportcontrole, dual-use. Buitenlandse toegang ernstig.'],h:'Onderzoeksdata? Hoe gevoelig? Embargo\'s? Buitenlandse toegang problematisch? Denk breder dan alleen datasets: ook onderzoeksmethoden, nog niet gepubliceerde bevindingen en strategische kennis vallen hieronder.'},
+{code:'G3',title:'Intellectueel eigendom',dim:'G',dn:'Data-gevoeligheid',niv:3,w:2,q:'Hoe waardevol is het IP in dit systeem?',r:['Geen IP van waarde.','Beperkt: algemeen beschikbaar materiaal.','Waardevol: bijv. uniek cursusmateriaal, methoden, algoritmen.','Significant: bijv. patentwaardige vindingen, unieke datasets.','Kritiek: actieve patenten of strategisch IP. Toegang door derden levert grote schade op.'],h:'Welk intellectueel eigendom zit in dit systeem? Denk aan uniek cursusmateriaal, onderzoeksmethoden, algoritmen, datasets, patenten. Wat is de schade als een derde partij hier toegang toe krijgt?'},
+{code:'H1',title:'Academische vrijheid',dim:'H',dn:'Academische impact',niv:3,w:3,q:'Kan de leverancier invloed uitoefenen op academische activiteiten?',r:['Geen relatie met onderzoek.','Theoretisch risico, geen eerdere gevallen bekend.','Toegang tot onderzoekspatronen. Beperkt risico op indirecte beinvloeding.','Reeel risico. Land waar overheden onderzoek kunnen censureren.','Aangetoonde censuur of datavordering bij deze leverancier of overheid.'],h:'Kan de leverancier of een buitenlandse overheid inzicht krijgen in onderzoeksactiviteiten? Zijn er eerdere gevallen van censuur of datavordering bij deze leverancier?'},
+{code:'H2',title:'Onderzoekssamenwerking',dim:'H',dn:'Academische impact',niv:3,w:2,q:'Belang voor onderzoekssamenwerking (nationaal en internationaal)?',r:['Geen rol. Puur intern.','Marginale rol. Direct alternatieven voor partners.','Ondersteunend. Gebruik wenselijk maar niet noodzakelijk.','Belangrijk platform. Meerdere partners gebruiken het.','Essentieel en onvervangbaar. Standaard in vakgebied.'],h:'Partners met zelfde systeem? Standaard in vakgebied? Gevolgen overstap? Dit geldt voor zowel internationale als nationale samenwerkingsverbanden.'},
+{code:'H3',title:'Langetermijnarchivering',dim:'H',dn:'Academische impact',niv:3,w:2,q:'Hoe lang moet data bewaard en toegankelijk blijven?',r:['Geen archiveringseis. Puur operationeel.','<5 jaar. Beperkte afhankelijkheidsduur.','5-10 jaar. Verificatie en audit moeten mogelijk blijven.','10-25 jaar. Wetenschappelijke reproduceerbaarheid vereist.','Permanent (>25 jaar) of wettelijke verplichting.'],h:'Hoe lang bewaren? Wettelijke plicht? Reproduceerbaarheid? Hoe langer de bewaartermijn, hoe groter het risico van langdurige leveranciersafhankelijkheid. Voor het formaat waarin data wordt opgeslagen, zie C3 (Data-portabiliteit).'},
+];
+
+const DIM_DESC={A:'Onder welke wetgeving valt de leverancier en waar staat de data? Geopolitieke en jurisdictierisico\'s.',B:'Hoeveel producten en diensten neem je af bij dezelfde leverancier?',C:'Kun je technisch gezien overstappen? Zijn er alternatieven, is data exporteerbaar, is de software open?',D:'Heb je de kennis, plannen en backups om een overstap daadwerkelijk uit te voeren?',E:'Wat is er contractueel geregeld over vertrek, data-overdracht en flexibiliteit?',F:'Hoe belangrijk is deze applicatie voor de organisatie en hoeveel hangt ervan af?',G:'Welke gevoelige gegevens zitten in dit systeem? Persoonsgegevens, onderzoeksdata, intellectueel eigendom.',H:'Raakt deze applicatie aan academische vrijheid, samenwerking of langetermijnarchivering?'};
+const DIMS={A:'Geopolitiek risico',B:'Leveranciersafhankelijkheid',C:'Technische weerbaarheid',D:'Organisatorische weerbaarheid',E:'Contractuele weerbaarheid',F:'Organisatorisch belang',G:'Data-gevoeligheid',H:'Academische impact'};
+const NIV_DIMS={1:['A','B'],2:['C','D','E'],3:['F','G','H']};
+const NIV_NAMES={1:'Risico-exposure',2:'Mitigatie-capaciteit',3:'Strategisch belang'};
+const NIV_CLS={1:'n1',2:'n2',3:'n3'};
+const NIV_HINTS={1:'1 = laag risico (goed) ... 5 = hoog risico',2:'1 = slechte mitigatie ... 5 = sterke mitigatie (goed)',3:'1 = laag belang ... 5 = hoog belang (urgent)'};
+const QUICK_CODES=new Set(['A1','A3','B1','C1','D1','E1','F1','G1','H1']);
+const LIGHT_CODES=QUICK_CODES; // backward compat
+const VALID_CODES=new Set(INDICATORS.map(i=>i.code));
+
+// === GLOSSARY (tooltips for jargon) ===
+const GLOSSARY = {
+  'EU/EER': 'Europese Unie / Europese Economische Ruimte: de 27 EU-lidstaten plus IJsland, Liechtenstein en Noorwegen. Binnen dit gebied gelden dezelfde regels voor gegevensbescherming (AVG/GDPR).',
+  'CLOUD Act': 'Clarifying Lawful Overseas Use of Data Act (VS, 2018): Amerikaanse wet die de VS-overheid het recht geeft data op te vragen bij Amerikaanse techbedrijven, ook als die data buiten de VS is opgeslagen.',
+  'FISA 702': 'Foreign Intelligence Surveillance Act, Section 702 (VS): staat de NSA toe om zonder huiszoekingsbevel communicatie van niet-Amerikanen buiten de VS te onderscheppen via Amerikaanse techbedrijven.',
+  'adequaatheidsbesluit': 'Besluit van de Europese Commissie dat een land buiten de EU/EER een gelijkwaardig niveau van gegevensbescherming biedt. Hierdoor mag persoonsdata zonder aanvullende waarborgen naar dat land worden doorgegeven.',
+  'Adequaatheidsbesluit': 'Besluit van de Europese Commissie dat een land buiten de EU/EER een gelijkwaardig niveau van gegevensbescherming biedt. Hierdoor mag persoonsdata zonder aanvullende waarborgen naar dat land worden doorgegeven.',
+  'SCCs': 'Standard Contractual Clauses: door de Europese Commissie goedgekeurde modelcontracten die organisaties kunnen gebruiken als juridische basis voor het doorgeven van persoonsdata naar landen buiten de EU/EER.',
+  'extraterritoriale': 'Wetgeving die ook buiten het eigen grondgebied geldt. Bijvoorbeeld: de Amerikaanse CLOUD Act claimt jurisdictie over data van Amerikaanse bedrijven, ongeacht waar die data fysiek is opgeslagen.',
+  'BYOK': 'Bring Your Own Key: een model waarbij de klant zelf de encryptiesleutels beheert en inbrengt bij de cloudleverancier, in plaats van dat de leverancier de sleutels genereert en beheert.',
+  'Client-side encryption': 'Versleuteling die plaatsvindt op het apparaat van de gebruiker, voordat data naar de leverancier wordt verstuurd. De leverancier kan de inhoud niet inzien omdat alleen de klant de sleutels heeft.',
+  'source-available': 'Broncode is publiek inzichtelijk, maar de licentie staat niet toe om de software vrij te gebruiken, aan te passen of te distribueren. Beperkter dan echte open source.',
+  'permissive licentie': 'Open-source licentie met weinig beperkingen (bijv. MIT, Apache 2.0). Staat toe om de software vrij te gebruiken, aan te passen en te distribueren, ook in commerciele producten.',
+  'SLA': 'Service Level Agreement: contractuele afspraken over het minimale serviceniveau, zoals beschikbaarheid (uptime), responstijden en compensatie bij niet-nakoming.',
+  'KPI\'s': 'Key Performance Indicators: meetbare prestatie-indicatoren waarop een leverancier wordt beoordeeld, zoals uptime-percentage, responstijd en doorlooptijd van incidenten.',
+  'DPIA': 'Data Protection Impact Assessment (Gegevensbeschermingseffectbeoordeling): verplichte risicoanalyse onder de AVG bij verwerkingen die een hoog privacyrisico opleveren.',
+  'dual-use': 'Goederen of technologie met zowel civiele als militaire toepassingen. Onderzoeksdata met dual-use karakter kan onder exportcontrole vallen en mag niet onbeperkt gedeeld worden.',
+  'exportcontrole': 'Regelgeving die de uitvoer van bepaalde goederen, software of kennis naar het buitenland beperkt, vaak vanwege veiligheidsbelangen. Relevant voor gevoelig onderzoek.',
+  'proefmigratie': 'Een testmigratie waarbij het volledige overstapproces wordt doorlopen in een testomgeving, om te controleren of data en functionaliteit correct overkomen voordat de echte migratie plaatsvindt.',
+  'API': 'Application Programming Interface: een gestandaardiseerde manier waarop softwaresystemen met elkaar communiceren. Via een API kun je geautomatiseerd data uitwisselen met een dienst.',
+  'open source': 'Software waarvan de broncode vrij beschikbaar is om te bekijken, aan te passen en te distribueren. Voorbeelden: Linux, Firefox, LibreOffice.',
+  'open standaarden': 'Technische specificaties die vrij beschikbaar en leverancieronafhankelijk zijn. Gebruik van open standaarden voorkomt vendor lock-in. Voorbeelden: PDF, HTML, ODF, SQL.',
+  'vendor lock-in': 'Situatie waarin een organisatie zo afhankelijk is van een leverancier dat overstappen naar een alternatief buitensporig duur of complex wordt.',
+  'AVG': 'Algemene Verordening Gegevensbescherming (Engels: GDPR): Europese privacywet die regelt hoe organisaties persoonsgegevens mogen verzamelen, opslaan en verwerken.',
+  'escalatieprocedure': 'Een vooraf afgesproken stapsgewijze procedure als de leverancier niet meewerkt bij vertrek. Bijvoorbeeld: eerst accountmanager, dan management, dan juridische stappen.',
+  'verwijdergarantie': 'Contractuele garantie dat de leverancier na overdracht al jouw data volledig verwijdert van hun systemen, inclusief backups en kopieën.',
+  'boeteclausule': 'Contractuele bepaling die financiële consequenties oplegt als de leverancier zich niet aan de exit-afspraken houdt, bijvoorbeeld een boete per dag vertraging.',
+  'fork': 'Een onafhankelijke kopie van de broncode van een softwareproject. Met een fork kun je de software zelfstandig (laten) doorontwikkelen, onafhankelijk van de oorspronkelijke leverancier of community.',
+};
+
+function addTooltips(text) {
+  const terms = Object.keys(GLOSSARY).sort((a,b) => b.length - a.length);
+  let result = text;
+  const used = new Set();
+  for (const term of terms) {
+    const idx = result.indexOf(term);
+    if (idx === -1) continue;
+    const before = result.substring(0, idx);
+    if (before.lastIndexOf('<span class="tt"') > before.lastIndexOf('</span>') && before.lastIndexOf('<span class="tt"') !== -1) continue;
+    const key = term.toLowerCase();
+    if (used.has(key)) continue;
+    used.add(key);
+    const tipText = GLOSSARY[term].replace(/"/g, '&quot;');
+    result = result.substring(0, idx) + `<span class="tt" data-tip="${tipText}">${term}</span>` + result.substring(idx + term.length);
+  }
+  return result;
+}
+
+// === TOOLTIP POPUP (single shared element, fixed positioning) ===
+const ttPopup = document.createElement('div');
+ttPopup.className = 'tt-popup';
+document.body.appendChild(ttPopup);
+let ttTimeout = null;
+
+document.addEventListener('mouseover', e => {
+  const tt = e.target.closest('.tt');
+  if (!tt || !tt.dataset.tip) return;
+  clearTimeout(ttTimeout);
+  ttPopup.textContent = tt.dataset.tip;
+  ttPopup.classList.add('visible');
+  const rect = tt.getBoundingClientRect();
+  const pw = ttPopup.offsetWidth;
+  const ph = ttPopup.offsetHeight;
+  // Position below the term by default
+  let top = rect.bottom + 6;
+  let left = rect.left + rect.width/2 - pw/2;
+  // If below goes off-screen, show above
+  if (top + ph > window.innerHeight - 10) {
+    top = rect.top - ph - 6;
+  }
+  // Keep within horizontal bounds
+  if (left < 8) left = 8;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  ttPopup.style.top = top + 'px';
+  ttPopup.style.left = left + 'px';
+});
+
+document.addEventListener('mouseout', e => {
+  const tt = e.target.closest('.tt');
+  if (!tt) return;
+  ttTimeout = setTimeout(() => { ttPopup.classList.remove('visible'); }, 100);
+});
+
+// === STATE ===
+let state = { apps:{}, order:[], currentView:'overview', modes:{} };
+let appCounter = 0;
+
+function save() { try { localStorage.setItem('daaf_state', JSON.stringify(state)); } catch(e){} }
+function load() { try { const s=localStorage.getItem('daaf_state'); if(s){state=JSON.parse(s);appCounter=state.order.length;if(!state.modes)state.modes={};for(const id of state.order){if(!state.apps[id].remarks)state.apps[id].remarks={};if(state.apps[id].appId===undefined)state.apps[id].appId='';}} } catch(e){} }
+function uid() { return 'app_'+(++appCounter)+'_'+Date.now().toString(36); }
+
+// === DROPDOWN ===
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  closeDropdowns();
+  if (!wasOpen) {
+    el.classList.add('open');
+    // Reposition if off-screen
+    requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect();
+      el.style.left = '';
+      el.style.right = '';
+      if (rect.left < 4) {
+        el.style.left = '0';
+        el.style.right = 'auto';
+      } else if (rect.right > window.innerWidth - 4) {
+        el.style.left = 'auto';
+        el.style.right = '0';
+      }
+    });
+  }
+}
+function closeDropdowns() { document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('open')); }
+document.addEventListener('click', e => { if (!e.target.closest('.dropdown')) closeDropdowns(); });
+
+// === HELP MODAL ===
+function openHelp() { document.getElementById('helpModal').classList.add('open'); }
+function closeHelp() { document.getElementById('helpModal').classList.remove('open'); }
+document.getElementById('helpModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeHelp(); });
+
+// === WEIGHTS MODAL ===
+let currentWeightsAppId = null;
+function openWeightsModalCurrent() {
+  if (state.currentView && state.currentView !== 'overview' && state.apps[state.currentView]) {
+    openWeightsModal(state.currentView);
+  }
+}
+function updateHeaderWeightsBtn() {
+  const btn = document.getElementById('headerWeightsBtn');
+  if (btn) btn.style.display = (state.currentView && state.currentView !== 'overview' && state.apps[state.currentView]) ? '' : 'none';
+}
+function openWeightsModal(id) {
+  currentWeightsAppId = id;
+  const app = state.apps[id];
+  const modal = document.getElementById('weightsModal');
+  const content = document.getElementById('weightsContent');
+  let h = '';
+  for (const niv of [1,2,3]) {
+    const dims = NIV_DIMS[niv];
+    for (const dim of dims) {
+      const dinds = INDICATORS.filter(i=>i.dim===dim);
+      h += `<div style="margin-bottom:1.2rem"><h3 style="font-size:0.9rem;color:var(--uu-black);margin-bottom:0.5rem">Dimensie ${dim}: ${DIMS[dim]}</h3>`;
+      for (const ind of dinds) {
+        const curW = app.weights[ind.code]!==undefined ? app.weights[ind.code] : ind.w;
+        const isModified = app.weights[ind.code]!==undefined && app.weights[ind.code]!==ind.w;
+        h += `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem;background:#faf8f2;margin-bottom:0.3rem;border-radius:4px">`;
+        h += `<span style="font-size:0.8rem">${ind.code} ${ind.title}</span>`;
+        h += `<div style="display:flex;align-items:center;gap:0.3rem">`;
+        h += `<button class="wgt-btn" onclick="chgWModal('${id}','${ind.code}',-1)">-</button>`;
+        h += `<span class="wgt-val${isModified?' modified':''}" id="wv-modal-${id}-${ind.code}" style="min-width:1.5rem;text-align:center">${curW}</span>`;
+        h += `<button class="wgt-btn" onclick="chgWModal('${id}','${ind.code}',1)">+</button>`;
+        h += `</div></div>`;
+      }
+      h += `</div>`;
+    }
+  }
+  content.innerHTML = h;
+  modal.classList.add('open');
+}
+function closeWeightsModal() {
+  document.getElementById('weightsModal').classList.remove('open');
+  currentWeightsAppId = null;
+}
+function chgWModal(id, code, delta) {
+  const app = state.apps[id];
+  const ind = INDICATORS.find(i=>i.code===code);
+  const cur = app.weights[code]||ind.w;
+  const nw = Math.max(1,Math.min(5,cur+delta));
+  app.weights[code]=nw;
+  const el = document.getElementById(`wv-modal-${id}-${code}`);
+  if(el) { el.textContent=nw; el.classList.toggle('modified',nw!==ind.w); }
+  const mainEl = document.getElementById(`wv-${id}-${code}`);
+  if(mainEl) { mainEl.textContent=nw; mainEl.classList.toggle('modified',nw!==ind.w); }
+  save();
+  recalcApp(id);
+}
+function resetWeights() {
+  if (!currentWeightsAppId) return;
+  if (!confirm('Weet je zeker dat je alle wegingen wilt resetten naar standaard?')) return;
+  const app = state.apps[currentWeightsAppId];
+  app.weights = {};
+  save();
+  recalcApp(currentWeightsAppId);
+  openWeightsModal(currentWeightsAppId);
+}
+document.getElementById('weightsModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeWeightsModal(); });
+
+// === REMARKS ===
+function saveRemark(id, code, value) {
+  const app = state.apps[id];
+  if (!app.remarks) app.remarks = {};
+  if (value.trim()) {
+    app.remarks[code] = value;
+  } else {
+    delete app.remarks[code];
+  }
+  save();
+}
+
+// === SCORE CALCULATION ===
+function calcApp(app, mode) {
+  const isQuick = mode==='quick';
+  const activeInds = isQuick ? INDICATORS.filter(i=>QUICK_CODES.has(i.code)) : INDICATORS;
+  const res = { dims:{}, nivs:{}, raw:null, score10:null, filled:0, total:activeInds.length };
+  for (const d of Object.keys(DIMS)) {
+    const inds = activeInds.filter(i=>i.dim===d);
+    if (inds.length===0) { res.dims[d]=null; continue; }
+    let sw=0,sws=0;
+    for (const ind of inds) {
+      const sc = app.scores[ind.code];
+      if (sc!==undefined) {
+        const w = app.weights[ind.code]||ind.w;
+        sw+=w; sws+=sc*w; res.filled++;
+      }
+    }
+    res.dims[d] = sw>0 ? sws/sw : null;
+  }
+  function nivAvg(dl) { const v=dl.map(d=>res.dims[d]).filter(x=>x!==null); return v.length===dl.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
+  res.nivs.risico = nivAvg(NIV_DIMS[1]);
+  res.nivs.mitigatie = nivAvg(NIV_DIMS[2]);
+  res.nivs.belang = nivAvg(NIV_DIMS[3]);
+  if (res.nivs.risico && res.nivs.mitigatie && res.nivs.belang && res.nivs.risico*res.nivs.belang>0) {
+    res.raw = res.nivs.mitigatie / (res.nivs.risico * res.nivs.belang);
+    res.score10 = normalize10(res.raw);
+  }
+  return res;
+}
+
+function normalize10(raw) {
+  if (!raw || raw<=0) return null;
+  const minL=Math.log(0.04), maxL=Math.log(5.0);
+  return Math.max(1, Math.min(10, (Math.log(raw)-minL)/(maxL-minL)*9+1));
+}
+
+function scorePill(v) {
+  if (v===null) return '<span class="score-pill pill-empty">--</span>';
+  const cls = v>=7?'pill-good':v>=5?'pill-ok':v>=3?'pill-weak':'pill-bad';
+  return `<span class="score-pill ${cls}">${v.toFixed(1)}</span>`;
+}
+
+function dimPill(v) {
+  if (v===null) return '<span class="dim-badge empty">--</span>';
+  return `<span class="dim-badge">${v.toFixed(1)}</span>`;
+}
+
+// === TAB SCROLLING ===
+function scrollTabs(px) {
+  const bar = document.getElementById('tabBar');
+  bar.scrollLeft += px;
+}
+function updateScrollBtns() {
+  const bar = document.getElementById('tabBar');
+  const left = document.getElementById('tabScrollLeft');
+  const right = document.getElementById('tabScrollRight');
+  left.classList.toggle('hidden', bar.scrollLeft <= 5);
+  right.classList.toggle('hidden', bar.scrollLeft >= bar.scrollWidth - bar.clientWidth - 5);
+}
+
+// === APP MANAGEMENT ===
+function addApp(name) {
+  const id = uid();
+  state.apps[id] = { name:name||'', appId:'', datum:'', beoordelaar:'', scores:{}, weights:{}, remarks:{} };
+  state.order.push(id);
+  save();
+  rebuildTabs();
+  showView(id);
+  setTimeout(()=>{const el=document.getElementById('name-'+id);if(el&&!name)el.focus();},100);
+}
+
+function removeApp(id) {
+  if (!confirm('Weet je zeker dat je deze applicatie wilt verwijderen?')) return;
+  delete state.apps[id];
+  state.order = state.order.filter(x=>x!==id);
+  save();
+  rebuildTabs();
+  showView('overview');
+}
+
+function duplicateApp(id) {
+  const src = state.apps[id];
+  const nid = uid();
+  state.apps[nid] = JSON.parse(JSON.stringify(src));
+  state.apps[nid].name = (src.name||'Naamloos') + ' (kopie)';
+  state.order.push(nid);
+  save();
+  rebuildTabs();
+  showView(nid);
+}
+
+// === VIEWS ===
+function rebuildTabs() {
+  const bar = document.getElementById('tabBar');
+  let h = '<button class="tab overview'+(state.currentView==='overview'?' active':'')+'" onclick="showView(\'overview\')">Overzicht</button>';
+  for (const id of state.order) {
+    const app = state.apps[id];
+    const name = app.name || 'Naamloos';
+    const active = state.currentView===id?' active':'';
+    h += `<button class="tab${active}" onclick="showView('${id}')">${esc(name.substring(0,20))}${name.length>20?'...':''}<span class="close-tab" onclick="event.stopPropagation();removeApp('${id}')">&times;</span></button>`;
+  }
+  h += '<button class="add-tab" onclick="addApp()" title="Applicatie toevoegen">+</button>';
+  bar.innerHTML = h;
+  // Update tab count
+  const cnt = document.getElementById('tabCount');
+  if (cnt) cnt.textContent = state.order.length > 0 ? state.order.length + ' app' + (state.order.length!==1?'s':'') : '';
+  setTimeout(updateScrollBtns, 50);
+}
+
+function showView(id) {
+  state.currentView = id;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  if (id==='overview') {
+    document.getElementById('view-overview').classList.add('active');
+    renderOverview();
+  } else {
+    let el = document.getElementById('view-'+id);
+    if (!el) { renderAppView(id); el = document.getElementById('view-'+id); }
+    if (el) el.classList.add('active');
+    recalcApp(id);
+  }
+  rebuildTabs();
+  updateHeaderWeightsBtn();
+}
+
+function renderOverview() {
+  const c = document.getElementById('overviewContent');
+  if (state.order.length===0) {
+    c.innerHTML = '<div style="text-align:center;padding:3rem;color:#bbb"><p style="font-size:1.2rem;margin-bottom:0.5rem">Nog geen applicaties beoordeeld</p><p style="font-size:0.85rem">Klik op <strong>+ Applicatie toevoegen</strong> om te beginnen, of importeer een applicatielijst via CSV.</p></div>';
+    return;
+  }
+  let h = '<table class="overview-grid"><tr><th>Applicatie</th><th>ID</th><th>Voortgang</th><th>Score (1-10)</th><th>Risico</th><th>Mitigatie</th><th>Belang</th><th>Ruwe score</th><th></th></tr>';
+  for (const id of state.order) {
+    const app = state.apps[id];
+    const mode = state.modes?.[id] || 'full';
+    const res = calcApp(app, mode);
+    const pct = Math.round(res.filled/res.total*100);
+    const pcolor = pct===100?'var(--green)':pct>50?'var(--orange)':'#ccc';
+    h += `<tr>`;
+    h += `<td class="app-name" onclick="showView('${id}')">${esc(app.name)||'Naamloos'}</td>`;
+    h += `<td style="font-size:0.75rem;color:#999">${esc(app.appId||'--')}</td>`;
+    h += `<td>${pct}%<span class="progress-bar"><span class="progress-fill" style="width:${pct}%;background:${pcolor}"></span></span></td>`;
+    h += `<td>${scorePill(res.score10)}</td>`;
+    h += `<td style="font-size:0.75rem;color:var(--uu-red)">${res.nivs.risico?res.nivs.risico.toFixed(2):'--'}</td>`;
+    h += `<td style="font-size:0.75rem;color:var(--green)">${res.nivs.mitigatie?res.nivs.mitigatie.toFixed(2):'--'}</td>`;
+    h += `<td style="font-size:0.75rem;color:var(--orange)">${res.nivs.belang?res.nivs.belang.toFixed(2):'--'}</td>`;
+    h += `<td style="font-size:0.72rem;color:#aaa">${res.raw?res.raw.toFixed(3):'--'}</td>`;
+    h += `<td><button class="hbtn" style="font-size:0.65rem;padding:0.2rem 0.5rem;color:#888;background:#f5f5f5" onclick="duplicateApp('${id}')">Kopieer</button></td>`;
+    h += `</tr>`;
+  }
+  h += '</table>';
+
+  // === QUADRANT ===
+  h += `<div class="quadrant-wrap"><h3 class="merri">Autonomie-kwadrant</h3>`;
+  h += `<div class="q-xticks-row"><div class="q-side-spacer"></div><div class="q-xticks"><span></span><span>Laag</span><span></span><span>Hoog</span><span></span></div></div>`;
+  h += `<div class="quadrant-outer">`;
+  h += `<div class="q-ylabel">Mitigatie</div>`;
+  h += `<div class="q-yticks"><span>Hoog</span><span>Laag</span></div>`;
+  h += `<div class="q-main">`;
+  h += `<div class="quadrant-grid" id="quadrantGrid">`;
+  h += `<div class="q-cell q-tl"><div class="q-label">OPTIMAAL</div><div class="q-desc">Behoud huidige situatie,<br>monitor periodiek</div></div>`;
+  h += `<div class="q-cell q-tr"><div class="q-label">BEHEERSBAAR</div><div class="q-desc">Risico's geaccepteerd<br>met goede fallback</div></div>`;
+  h += `<div class="q-cell q-bl"><div class="q-label">AANDACHTSPUNT</div><div class="q-desc">Bouw mitigatie op of<br>accepteer risico bewust</div></div>`;
+  h += `<div class="q-cell q-br"><div class="q-label">KRITIEK</div><div class="q-desc">Urgente actie vereist:<br>migreer of mitigeer</div></div>`;
+  h += `<div class="q-dots-layer" id="quadrantDots"></div>`;
+  h += `</div>`;
+  h += `</div></div>`;
+  h += `<div class="q-xlabel">Risico-exposure x Strategisch belang</div>`;
+  // Legend
+  h += `<div class="q-legend">`;
+  const plotted = [];
+  for (let idx=0; idx<state.order.length; idx++) {
+    const aid = state.order[idx];
+    const a = state.apps[aid];
+    const r = calcApp(a, state.modes?.[aid] || 'full');
+    if (r.nivs.risico && r.nivs.mitigatie && r.nivs.belang) {
+      plotted.push({id:aid, name:a.name||'Naamloos', num:idx+1, risico:r.nivs.risico, mitigatie:r.nivs.mitigatie, belang:r.nivs.belang});
+    }
+  }
+  for (const p of plotted) {
+    h += `<span><span class="q-legend-dot"></span>${p.num}. ${esc(p.name)}</span>`;
+  }
+  if (plotted.length===0) h += `<span style="color:#bbb">Vul minimaal alle dimensies in om applicaties in het kwadrant te plotten</span>`;
+  h += `</div>`;
+
+  h += `<div class="formula-box" style="margin-top:0.6rem"><strong>Berekening:</strong> Per indicator score (1-5) x weging. Per dimensie gewogen gemiddelde. Per niveau gemiddelde van dimensies. <code>Ruwe score = Mitigatie / (Risico x Belang)</code>. Genormaliseerd naar 1-10 via logaritmische schaal.</div>`;
+  h += `</div>`;
+  c.innerHTML = h;
+
+  // Plot dots on quadrant
+  const dotsEl = document.getElementById('quadrantDots');
+  const gridEl = document.getElementById('quadrantGrid');
+  if (dotsEl && gridEl && plotted.length > 0) {
+    setTimeout(() => {
+      const gw = gridEl.offsetWidth;
+      const gh = gridEl.offsetHeight;
+      for (const p of plotted) {
+        // X: risico * belang, range 1-25, map to 5%-95%
+        const xRaw = p.risico * p.belang;
+        const xPct = 5 + ((xRaw - 1) / (25 - 1)) * 90;
+        // Y: mitigatie, range 1-5, map to 95%-5% (inverted: high=top)
+        const yPct = 95 - ((p.mitigatie - 1) / (5 - 1)) * 90;
+        const dot = document.createElement('div');
+        dot.className = 'q-dot';
+        dot.style.left = xPct + '%';
+        dot.style.top = yPct + '%';
+        dot.textContent = p.num;
+        dot.onclick = () => showView(p.id);
+        dot.innerHTML = p.num + `<span class="q-dot-tip">${esc(p.name)}</span>`;
+        dot.style.pointerEvents = 'auto';
+        dotsEl.appendChild(dot);
+      }
+    }, 50);
+  }
+}
+
+function renderAppView(id) {
+  const app = state.apps[id];
+  const container = document.getElementById('appViews');
+  const div = document.createElement('div');
+  div.className = 'view';
+  div.id = 'view-'+id;
+
+  let h = '';
+  h += `<div class="assess-header">`;
+  h += `<div class="assess-meta">`;
+  h += `<div class="meta-field"><label>Applicatie-ID</label><input id="appId-${id}" value="${esc(app.appId||'')}" placeholder="Bijv. SOFT-1234..." onchange="updateMeta('${id}','appId',this.value)"></div>`;
+  h += `<div class="meta-field" style="flex:2"><label>Applicatienaam</label><input id="name-${id}" value="${esc(app.name)}" placeholder="Bijv. Microsoft Teams..." onchange="updateMeta('${id}','name',this.value)"></div>`;
+  h += `<div class="meta-field"><label>Datum</label><input type="date" value="${app.datum}" onchange="updateMeta('${id}','datum',this.value)"></div>`;
+  h += `<div class="meta-field"><label>Beoordelaar(s)</label><input value="${esc(app.beoordelaar)}" placeholder="Namen..." onchange="updateMeta('${id}','beoordelaar',this.value)"></div>`;
+  h += `</div>`;
+  h += `<div class="assess-controls">`;
+  h += `<div class="seg-control" id="segCtrl-${id}">`;
+  h += `<button class="seg-btn active" data-mode="full" onclick="setMode('${id}','full')">Volledig (22)</button>`;
+  h += `<button class="seg-btn" data-mode="quick" onclick="setMode('${id}','quick')">Quick scan (9)</button>`;
+  h += `</div>`;
+  h += `<span class="assess-mode-hint" id="modeHint-${id}"></span>`;
+  h += `</div></div>`;
+
+  h += `<div class="score-row">`;
+  h += `<div class="score-card main-score"><div class="sc-label">Autonomie Score <span class="tt" data-tip="Hoe groot is het autonomieprobleem? Een hoge score betekent: goed gemitigeerd en/of laag risico. Een lage score betekent: urgent probleem. Berekend als Mitigatie / (Risico x Belang), genormaliseerd naar 1-10. Zie Handleiding voor details." style="cursor:help;font-size:0.55rem;color:#bbb;border-bottom:1px dotted #ccc">&#9432;</span></div><div class="sc-value" id="sc10-${id}">--</div><div class="sc-sub">Lage score = urgent probleem</div></div>`;
+  h += `<div class="score-card risico"><div class="sc-label">Risico-exposure <span class="tt" data-tip="Hoe groot is het externe risico? Gemiddelde van dimensie A (Geopolitiek risico) en B (Leveranciersafhankelijkheid). Lage score = weinig risico (goed). Hoge score = veel risico. Dit niveau kun je verbeteren, bijv. door te migreren naar een EU-provider." style="cursor:help;font-size:0.55rem;color:#bbb;border-bottom:1px dotted #ccc">&#9432;</span></div><div class="sc-value" id="scR-${id}">--</div><div class="sc-sub">Laag = weinig risico (goed)</div></div>`;
+  h += `<div class="score-card mitigatie"><div class="sc-label">Mitigatie-capaciteit <span class="tt" data-tip="Hoe goed kan de organisatie risico's beheersen? Gemiddelde van dimensie C (Technische weerbaarheid), D (Organisatorische weerbaarheid) en E (Contractuele weerbaarheid). Lage score = zwak. Hoge score = sterk. Dit niveau kun je verbeteren, bijv. door alternatieven te ontwikkelen, contracten te versterken of kennis op te bouwen." style="cursor:help;font-size:0.55rem;color:#bbb;border-bottom:1px dotted #ccc">&#9432;</span></div><div class="sc-value" id="scM-${id}">--</div><div class="sc-sub">Hoog = sterke mitigatie (goed)</div></div>`;
+  h += `<div class="score-card belang"><div class="sc-label">Strategisch belang <span class="tt" data-tip="Hoe belangrijk is de applicatie? Gemiddelde van dimensie F (Organisatorisch belang), G (Data-gevoeligheid) en H (Academische impact). Lage score = weinig belang. Hoge score = kritiek. Dit niveau ligt grotendeels vast; een applicatie wordt niet minder belangrijk." style="cursor:help;font-size:0.55rem;color:#bbb;border-bottom:1px dotted #ccc">&#9432;</span></div><div class="sc-value" id="scB-${id}">--</div><div class="sc-sub">Hoog = kritieke applicatie</div></div>`;
+  h += `</div>`;
+
+  for (const niv of [1,2,3]) {
+    const dims = NIV_DIMS[niv];
+    h += `<div class="niv-section">`;
+    h += `<div class="niv-bar ${NIV_CLS[niv]}"><span>Niveau ${niv}: ${NIV_NAMES[niv]}</span><span class="niv-hint">${NIV_HINTS[niv]}</span></div>`;
+    h += `<div class="niv-body" id="nivBody-${id}-${niv}">`;
+    for (const dim of dims) {
+      const dinds = INDICATORS.filter(i=>i.dim===dim);
+      h += `<div class="dim-row" id="dimRow-${id}-${dim}">`;
+      h += `<div class="dim-title" style="flex-direction:column;align-items:flex-start"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span onclick="toggleDimV('${id}','${dim}')" style="flex:1;cursor:pointer">Dimensie ${dim}: ${DIMS[dim]}</span><div class="dim-actions"><button class="dim-toggle-all" onclick="event.stopPropagation();toggleAllRubs('${id}','${dim}')" title="Alle rubrieken tonen/verbergen">Rubrieken &#9662;</button></div>${dimPill(null)}</div><div style="font-size:0.7rem;color:#999;font-weight:400;margin-top:0.3rem;margin-left:0">${DIM_DESC[dim]}</div></div>`;
+      h += `<div class="dim-inds" id="dimInds-${id}-${dim}">`;
+      h += `<div class="ind-colheader"><span></span><span>Indicator</span><span class="ch-wgt">Weging</span><span class="ch-score">Score (1-5)</span></div>`;
+      for (const ind of dinds) {
+        const dir = ind.niv===2?'asc':'desc';
+        const hL = ind.niv===2?'laag':'goed';
+        const hR = ind.niv===2?'hoog':'slecht';
+        const rubDir = ind.niv===2?'rub-asc':'rub-desc';
+        const isQuick = QUICK_CODES.has(ind.code);
+        h += `<div class="ind-row" data-code="${ind.code}" data-quick="${isQuick?1:0}" onclick="indRowClick(event,'${id}','${ind.code}')">`;
+        h += `<span class="ind-code">${ind.code}</span>`;
+        h += `<div class="ind-info"><div class="ind-title">${ind.title}${ind.opt?' <span style="font-size:0.6rem;color:#bbb">(opt.)</span>':''}</div><div class="ind-q">${ind.q}</div></div>`;
+        const curW = app.weights[ind.code]||ind.w;
+        const wModified = app.weights[ind.code]!==undefined && app.weights[ind.code]!==ind.w;
+        h += `<span class="wgt-val${wModified?' modified':''}" id="wv-${id}-${ind.code}" style="text-align:center">${curW}</span>`;
+        h += `<div class="ind-right"><div><div class="sbar">`;
+        for (let s=1;s<=5;s++) {
+          const act = app.scores[ind.code]===s?' active':'';
+          h += `<button class="sbar-opt ${dir}-${s}${act}" id="sb-${id}-${ind.code}-${s}" onclick="setS('${id}','${ind.code}',${s})">${s}</button>`;
+        }
+        h += `</div><div class="sbar-hint">${hL} &#8592; &#8594; ${hR}</div></div></div>`;
+        h += `</div>`;
+        h += `<div class="ind-detail" id="rub-${id}-${ind.code}"><div class="ind-detail-inner"><table class="rub-tbl ${rubDir}">`;
+        for (let s=1;s<=5;s++) h += `<tr class="rs${s}"><td>${s}</td><td>${addTooltips(ind.r[s-1])}</td></tr>`;
+        h += `</table>`;
+        if (ind.h) h += `<div class="hulp"><strong>Toelichting:</strong> ${addTooltips(ind.h)}</div>`;
+        h += `<div class="ind-remark"><textarea id="rem-${id}-${ind.code}" placeholder="Opmerking of onderbouwing..." oninput="saveRemark('${id}','${ind.code}',this.value)">${esc(app.remarks[ind.code]||'')}</textarea></div>`;
+        h += `</div></div>`;
+        h += `<div class="ind-remark" id="rem-sibling-${id}-${ind.code}" style="display:none"></div>`;
+      }
+      h += `</div></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  div.innerHTML = h;
+  container.appendChild(div);
+  // Show mode picker for new apps (no scores, no saved mode)
+  const hasScores = Object.keys(app.scores).length > 0;
+  const hasSavedMode = state.modes?.[id];
+  if (!hasScores && !hasSavedMode) {
+    const picker = document.createElement('div');
+    picker.id = `modePicker-${id}`;
+    picker.className = 'mode-picker';
+    picker.innerHTML = `<span class="mode-picker-label">Hoe wil je beoordelen?</span><div class="mode-picker-opts"><button class="mode-opt" onclick="pickMode('${id}','quick')"><span class="mode-icon">\u26A1</span><span class="mode-text"><strong>Quick scan</strong><span>9 kernindicatoren</span></span></button><button class="mode-opt" onclick="pickMode('${id}','full')"><span class="mode-icon">\uD83D\uDCCB</span><span class="mode-text"><strong>Volledig assessment</strong><span>22 indicatoren</span></span></button></div>`;
+    div.prepend(picker);
+  } else {
+    const savedMode = hasSavedMode || 'full';
+    if (savedMode !== 'full') setMode(id, savedMode);
+    else setMode(id, 'full');
+  }
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function updateMeta(id,field,val) {
+  state.apps[id][field] = val;
+  if (field==='name') rebuildTabs();
+  save();
+}
+
+function setS(id,code,val) {
+  const app = state.apps[id];
+  if (app.scores[code]===val) delete app.scores[code]; else app.scores[code]=val;
+  for (let s=1;s<=5;s++) {
+    const el=document.getElementById(`sb-${id}-${code}-${s}`);
+    if(el) el.classList.toggle('active', app.scores[code]===s);
+  }
+  save();
+  recalcApp(id);
+}
+
+function chgW(id,code,delta) {
+  const app = state.apps[id];
+  const ind = INDICATORS.find(i=>i.code===code);
+  const cur = app.weights[code]||ind.w;
+  const nw = Math.max(1,Math.min(5,cur+delta));
+  app.weights[code]=nw;
+  const el = document.getElementById(`wv-${id}-${code}`);
+  if(el) { el.textContent=nw; el.classList.toggle('modified',nw!==ind.w); }
+  save();
+  recalcApp(id);
+}
+
+function indRowClick(e, id, code) {
+  // Don't toggle rubric if user clicked a button (score or weight)
+  if (e.target.closest('button') || e.target.closest('.sbar-opt') || e.target.closest('.wgt-btn')) return;
+  toggleRub(id, code);
+}
+function toggleRub(id,code) {
+  const detail = document.getElementById(`rub-${id}-${code}`);
+  if (!detail) return;
+  detail.classList.toggle('open');
+  // Track open state on ind-row for chevron styling
+  const row = detail.previousElementSibling;
+  if (row && row.classList.contains('ind-row')) row.classList.toggle('rub-open', detail.classList.contains('open'));
+}
+function toggleDimV(id,dim) { const el=document.getElementById(`dimInds-${id}-${dim}`); if(el) el.style.display=el.style.display==='none'?'':'none'; }
+function pickMode(id, mode) {
+  const picker = document.getElementById(`modePicker-${id}`);
+  if (picker) picker.remove();
+  setMode(id, mode);
+}
+
+function toggleAllRubs(id,dim) {
+  const container = document.getElementById(`dimInds-${id}-${dim}`);
+  if (!container) return;
+  const details = container.querySelectorAll('.ind-detail');
+  const anyOpen = Array.from(details).some(d => d.classList.contains('open'));
+  details.forEach(d => {
+    if (anyOpen) { d.classList.remove('open'); }
+    else { if (d.style.display !== 'none') d.classList.add('open'); }
+    const row = d.previousElementSibling;
+    if (row && row.classList.contains('ind-row')) row.classList.toggle('rub-open', d.classList.contains('open'));
+  });
+}
+
+function setMode(id, mode) {
+  const ctrl = document.getElementById(`segCtrl-${id}`);
+  if (ctrl) ctrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
+  const view = document.getElementById(`view-${id}`);
+  if (!view) return;
+  const isQuick = mode==='quick';
+  view.querySelectorAll('.ind-row').forEach(row => {
+    const hide = isQuick && row.dataset.quick==='0';
+    row.style.display = hide ? 'none' : '';
+    // Also hide/show the sibling ind-detail (rubric)
+    const detail = row.nextElementSibling;
+    if (detail && detail.classList.contains('ind-detail')) {
+      detail.style.display = hide ? 'none' : '';
+      if (hide) detail.classList.remove('open');
+    }
+  });
+  // Update mode hint
+  const hint = document.getElementById(`modeHint-${id}`);
+  const app = state.apps[id];
+  if (hint && app) {
+    const total = isQuick ? QUICK_CODES.size : INDICATORS.length;
+    const filled = Object.keys(app.scores).filter(c => VALID_CODES.has(c) && (isQuick ? QUICK_CODES.has(c) : true)).length;
+    hint.innerHTML = isQuick
+      ? `<strong>${filled} van ${total}</strong> kernindicatoren (indicatieve score)`
+      : `<strong>${filled} van ${total}</strong> indicatoren`;
+  }
+  // Store mode preference
+  if (!state.modes) state.modes = {};
+  state.modes[id] = mode;
+  save();
+  recalcApp(id);
+}
+
+function recalcApp(id) {
+  const app = state.apps[id];
+  if(!app) return;
+  const mode = state.modes?.[id] || 'full';
+  const res = calcApp(app, mode);
+
+  const fmt = v => v!==null?v.toFixed(2):'--';
+  const el10 = document.getElementById(`sc10-${id}`);
+  if(el10) {
+    el10.innerHTML = res.score10?res.score10.toFixed(1)+'<span class="sc-scale">/10</span>':'--';
+    el10.style.color = res.score10?(res.score10>=7?'var(--green)':res.score10>=5?'var(--orange)':res.score10>=3?'#E65100':'var(--red)'):'var(--uu-black)';
+  }
+  const elR=document.getElementById(`scR-${id}`); if(elR) elR.innerHTML=res.nivs.risico!==null?fmt(res.nivs.risico)+'<span class="sc-scale">/5</span>':'--';
+  const elM=document.getElementById(`scM-${id}`); if(elM) elM.innerHTML=res.nivs.mitigatie!==null?fmt(res.nivs.mitigatie)+'<span class="sc-scale">/5</span>':'--';
+  const elB=document.getElementById(`scB-${id}`); if(elB) elB.innerHTML=res.nivs.belang!==null?fmt(res.nivs.belang)+'<span class="sc-scale">/5</span>':'--';
+
+  for (const d of Object.keys(DIMS)) {
+    const dimRow = document.getElementById(`dimRow-${id}-${d}`);
+    if(!dimRow) continue;
+    const titleEl = dimRow.querySelector('.dim-title');
+    if(!titleEl) continue;
+    const badge = titleEl.querySelector('.dim-badge');
+    if(badge) {
+      if(res.dims[d]!==null) { badge.textContent=res.dims[d].toFixed(1); badge.classList.remove('empty'); }
+      else { badge.textContent='--'; badge.classList.add('empty'); }
+    }
+  }
+  // Refresh mode hint counter
+  const hint = document.getElementById(`modeHint-${id}`);
+  if (hint) {
+    const isQuick = mode==='quick';
+    const total = isQuick ? QUICK_CODES.size : INDICATORS.length;
+    const filled = Object.keys(app.scores).filter(c => VALID_CODES.has(c) && (isQuick ? QUICK_CODES.has(c) : true)).length;
+    hint.innerHTML = isQuick
+      ? `<strong>${filled} van ${total}</strong> kernindicatoren (indicatieve score)`
+      : `<strong>${filled} van ${total}</strong> indicatoren`;
+  }
+}
+
+// === IMPORT / EXPORT ===
+function exportAll() {
+  const data = { version:'DAAF-export-v1', exportDatum:new Date().toISOString(), applicaties:{} };
+  for (const id of state.order) {
+    const app = state.apps[id];
+    const appMode = state.modes?.[id] || 'full';
+    const res = calcApp(app, appMode);
+    data.applicaties[app.name||'Naamloos'] = {
+      appId:app.appId||'', modus:appMode, datum:app.datum, beoordelaar:app.beoordelaar,
+      scores:app.scores, wegingen:app.weights, opmerkingen:app.remarks||{},
+      resultaat: { score10:res.score10?+res.score10.toFixed(1):null, ruw:res.raw?+res.raw.toFixed(4):null,
+        risico:res.nivs.risico?+res.nivs.risico.toFixed(2):null,
+        mitigatie:res.nivs.mitigatie?+res.nivs.mitigatie.toFixed(2):null,
+        belang:res.nivs.belang?+res.nivs.belang.toFixed(2):null,
+        dimensies:Object.fromEntries(Object.entries(res.dims).map(([k,v])=>[k+'. '+DIMS[k],v?+v.toFixed(2):null]))
+      }
+    };
+  }
+  downloadBlob(JSON.stringify(data,null,2), 'application/json', `DAAF_export_${new Date().toISOString().slice(0,10)}.json`);
+}
+
+function exportCSV() {
+  let csv = '\uFEFF';
+  csv += 'Applicatie-ID (optioneel);Applicatie;Datum;Beoordelaar;Score (1-10);Risico-exposure;Mitigatie-capaciteit;Strategisch belang;Ruwe score';
+  for (const d of Object.keys(DIMS)) csv += `;${d}. ${DIMS[d]}`;
+  csv += '\n';
+  for (const id of state.order) {
+    const app = state.apps[id];
+    const res = calcApp(app, state.modes?.[id] || 'full');
+    csv += `"${(app.appId||'').replace(/"/g,'""')}";"${(app.name||'Naamloos').replace(/"/g,'""')}";"${app.datum}";"${(app.beoordelaar||'').replace(/"/g,'""')}"`;
+    csv += `;${res.score10?res.score10.toFixed(1):''}`;
+    csv += `;${res.nivs.risico?res.nivs.risico.toFixed(2):''}`;
+    csv += `;${res.nivs.mitigatie?res.nivs.mitigatie.toFixed(2):''}`;
+    csv += `;${res.nivs.belang?res.nivs.belang.toFixed(2):''}`;
+    csv += `;${res.raw?res.raw.toFixed(4):''}`;
+    for (const d of Object.keys(DIMS)) csv += `;${res.dims[d]?res.dims[d].toFixed(2):''}`;
+    csv += '\n';
+  }
+  downloadBlob(csv, 'text/csv;charset=utf-8', `DAAF_scores_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function exportODF() {
+  let csv = '\uFEFF';
+  csv += 'Applicatie-ID;Applicatie;Code;Indicator;Weging;Score;Gewogen;Dimensie;Dimensiescore;Niveauscore;Autonomie Score (1-10)\n';
+  for (const id of state.order) {
+    const app = state.apps[id];
+    const res = calcApp(app, state.modes?.[id] || 'full');
+    const appName = app.name||'Naamloos';
+    const appId = app.appId||'';
+    for (const ind of INDICATORS) {
+      const sc = app.scores[ind.code];
+      const w = app.weights[ind.code]||ind.w;
+      csv += `"${appId}";"${appName}";"${ind.code}";"${ind.title}";${w};${sc||''};${sc?sc*w:''};"${ind.dim}. ${DIMS[ind.dim]}";${res.dims[ind.dim]?res.dims[ind.dim].toFixed(2):''};`;
+      if (ind.code==='A1'||ind.code==='C1'||ind.code==='F1') {
+        const nivKey = ind.niv===1?'risico':ind.niv===2?'mitigatie':'belang';
+        csv += res.nivs[nivKey]?res.nivs[nivKey].toFixed(2):'';
+      }
+      csv += ';';
+      if (ind.code==='A1') csv += res.score10?res.score10.toFixed(1):'';
+      csv += '\n';
+    }
+  }
+  downloadBlob(csv, 'text/csv;charset=utf-8', `DAAF_ODF_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.version && data.applicaties) {
+          for (const [name, app] of Object.entries(data.applicaties)) {
+            const id = uid();
+            state.apps[id] = { name, appId:app.appId||'', datum:app.datum||'', beoordelaar:app.beoordelaar||'', scores:app.scores||{}, weights:app.wegingen||{}, remarks:app.opmerkingen||{} };
+            state.order.push(id);
+          }
+        } else if (data.meta && data.indicatoren) {
+          const id = uid();
+          const scores = {};
+          for (const [code, d] of Object.entries(data.indicatoren)) scores[code]=d.score;
+          state.apps[id] = { name:data.meta.applicatie||'', appId:'', datum:data.meta.datum||'', beoordelaar:data.meta.beoordelaar||'', scores, weights:data.aangepaste_wegingen?Object.fromEntries(Object.entries(data.aangepaste_wegingen).map(([k,v])=>[k,v.aangepast])):{}, remarks:{} };
+          state.order.push(id);
+        }
+        save();
+        rebuildTabs();
+        // Rebuild views for imported apps
+        document.getElementById('appViews').innerHTML = '';
+        for (const id of state.order) renderAppView(id);
+        showView('overview');
+        renderOverview();
+      } catch(err) { alert('Ongeldig bestand: '+err.message); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function importCSVApps() {
+  const input = document.createElement('input');
+  input.type='file'; input.accept='.csv,.txt';
+  input.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const text = ev.target.result.replace(/^\uFEFF/,'');
+        const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+        if (lines.length===0) { alert('Leeg bestand.'); return; }
+        // Detect header
+        const firstLower = lines[0].toLowerCase();
+        let startIdx = 0;
+        if (firstLower.includes('applicatie') || firstLower.includes('naam') || firstLower.includes('name') || firstLower.includes('app') || firstLower.includes('id')) {
+          startIdx = 1;
+        }
+        let added = 0;
+        for (let i=startIdx; i<lines.length; i++) {
+          // Split on ; or , and take columns
+          const sep = lines[i].includes(';') ? ';' : ',';
+          const cols = lines[i].split(sep).map(c=>c.replace(/^["']+|["']+$/g,'').trim());
+          // For new format: ID, Name, Date, Assessor
+          // For old format: Name, Date, Assessor
+          let appId = '', name = '', datum = '', beoordelaar = '';
+          if (cols.length >= 4 && (cols[0].match(/^\w+-\d+/) || cols[0].match(/^[A-Z0-9-]+$/))) {
+            // New format: ID, Name, Date, Assessor
+            appId = cols[0];
+            name = cols[1];
+            datum = cols[2];
+            beoordelaar = cols[3];
+          } else {
+            // Old format: Name, Date, Assessor
+            name = cols[0];
+            datum = cols[1];
+            beoordelaar = cols[2];
+          }
+          if (!name) continue;
+          const id = uid();
+          state.apps[id] = { name, appId:appId||'', datum:datum||'', beoordelaar:beoordelaar||'', scores:{}, weights:{}, remarks:{} };
+          state.order.push(id);
+          added++;
+        }
+        if (added===0) { alert('Geen applicatienamen gevonden.'); return; }
+        save();
+        rebuildTabs();
+        document.getElementById('appViews').innerHTML = '';
+        for (const id of state.order) renderAppView(id);
+        showView('overview');
+        renderOverview();
+        alert(`${added} applicatie${added!==1?'s':''} geimporteerd.`);
+      } catch(err) { alert('Fout bij importeren: '+err.message); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function downloadCSVTemplate() {
+  let csv = '\uFEFF';
+  csv += 'Applicatie-ID (optioneel);Applicatienaam;Datum (optioneel);Beoordelaar (optioneel)\n';
+  csv += 'SOFT-001;Microsoft Teams;2026-03-19;Jan de Vries\n';
+  csv += 'SOFT-002;Canvas LMS;;\n';
+  csv += 'SOFT-003;SAP;;\n';
+  csv += 'SOFT-004;OSIRIS;;\n';
+  downloadBlob(csv, 'text/csv;charset=utf-8', 'DAAF_import_template.csv');
+}
+
+function downloadBlob(content, type, filename) {
+  const blob = new Blob([content], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// === INIT ===
+load();
+rebuildTabs();
+for (const id of state.order) renderAppView(id);
+if (state.currentView && state.currentView!=='overview' && state.apps[state.currentView]) {
+  showView(state.currentView);
+} else {
+  showView('overview');
+}
+</script>
+</body>
+</html>
