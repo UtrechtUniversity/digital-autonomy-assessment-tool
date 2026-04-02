@@ -51,8 +51,8 @@ All data stays in your browser. Nothing is sent to a server. You can export asse
 | D | Organisational resilience | Mitigation capacity |
 | E | Contractual resilience | Mitigation capacity |
 | F | Organisational importance | Strategic importance |
-| G | Data importance | Strategic importance |
-| H | Compliance importance | Strategic importance |
+| G | Data sensitivity | Strategic importance |
+| H | Academic impact | Strategic importance |
 
 ## Scoring methodology
 
