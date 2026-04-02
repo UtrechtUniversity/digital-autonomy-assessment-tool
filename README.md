@@ -77,4 +77,4 @@ This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licens
 ## Contact
 
 - Tim van Neerbos, Lead Enterprise Architect, Utrecht University
-- Email: tim@vneerbos.nl
+- Email: t.m.vanneerbos@uu.nl
