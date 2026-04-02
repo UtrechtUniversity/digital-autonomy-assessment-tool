@@ -1,6 +1,6 @@
 # Digital Autonomy Assessment Tool
 
-A browser-based assessment tool that implements the Digital Autonomy Assessment Framework (DAAF). Helps organisations evaluate the digital autonomy of their application landscape. Developed at Utrecht University as part of the Digital Autonomy programme.
+A browser-based assessment tool that implements the Digital Autonomy Assessment Framework (DAAF). Helps organisations evaluate the digital autonomy of their application landscape. Developed at Utrecht University as part of the UU Digital Autonomy project.
 
 ## About
 
