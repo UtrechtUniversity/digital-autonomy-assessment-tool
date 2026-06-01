@@ -286,6 +286,39 @@
     .footer-inner { flex-direction:column; text-align:center; }
   }
   @media print { .tab-wrapper,.header-right,.wgt-btn,.add-tab,.assess-controls,footer,.tab-scroll-btn { display:none; } body { background:white; } }
+
+  /* Undo toast */
+  .undo-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:var(--uu-black); color:white; padding:0.7rem 1.2rem; border-radius:var(--radius); font-size:0.85rem; display:flex; align-items:center; gap:1rem; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.3); animation:slideUp 0.2s ease; }
+  .undo-toast button { background:var(--uu-yellow); color:var(--uu-black); border:none; padding:0.3rem 0.8rem; border-radius:5px; font-weight:600; cursor:pointer; font-family:inherit; font-size:0.8rem; }
+  @keyframes slideUp { from { transform:translateX(-50%) translateY(20px); opacity:0; } to { transform:translateX(-50%) translateY(0); opacity:1; } }
+
+  /* Changelog panel */
+  .wn-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center; animation:fadeIn 0.15s ease; }
+  .wn-modal { background:white; border-radius:12px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; padding:2rem; position:relative; }
+  .wn-modal h2 { font-family:'Merriweather',Georgia,serif; font-size:1.1rem; margin-bottom:1.2rem; }
+  .wn-close { position:absolute; top:0.8rem; right:1rem; background:none; border:none; font-size:1.3rem; cursor:pointer; color:#999; }
+  .wn-close:hover { color:#333; }
+  .wn-ok { background:var(--uu-yellow); color:var(--uu-black); border:none; padding:0.5rem 1.5rem; border-radius:6px; font-weight:600; cursor:pointer; font-family:inherit; font-size:0.85rem; }
+  .wn-ok:hover { background:#ffe04a; }
+  .cl-version { margin-bottom:1.2rem; padding-bottom:1rem; border-bottom:1px solid #eee; }
+  .cl-version:last-of-type { border-bottom:none; }
+  .cl-version h3 { font-size:0.9rem; font-weight:700; margin-bottom:0.1rem; }
+  .cl-version .cl-date { font-size:0.7rem; color:#999; margin-bottom:0.4rem; }
+  .cl-version ul { margin:0.3rem 0 0 1.2rem; font-size:0.82rem; line-height:1.6; }
+  .cl-version li { margin-bottom:0.3rem; }
+  .cl-new-badge { display:inline-block; background:var(--uu-yellow); color:var(--uu-black); font-size:0.6rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:3px; margin-left:0.4rem; vertical-align:middle; }
+  .changelog-dot { position:absolute; top:5px; right:5px; width:7px; height:7px; background:var(--uu-yellow); border-radius:50%; }
+  .export-reminder { background:#fff8e1; border:1px solid #ffe082; border-radius:var(--radius); padding:0.6rem 1rem; margin-bottom:0.8rem; display:flex; align-items:center; justify-content:space-between; gap:0.8rem; font-size:0.82rem; color:#5d4037; }
+  .export-reminder button.er-export { background:var(--uu-yellow); color:var(--uu-black); border:none; padding:0.3rem 0.8rem; border-radius:5px; font-weight:600; cursor:pointer; font-family:inherit; font-size:0.78rem; white-space:nowrap; }
+  .export-reminder button.er-close { background:none; border:none; font-size:1.1rem; cursor:pointer; color:#999; padding:0 0.3rem; }
+  .export-reminder button.er-close:hover { color:#333; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  /* Bulk delete */
+  .bulk-bar { display:flex; align-items:center; gap:1rem; margin-bottom:0.8rem; }
+  .bulk-bar .hbtn { font-size:0.75rem; }
+  .overview-grid input[type="checkbox"] { cursor:pointer; }
+  .pending-delete { opacity:0.3; text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -312,6 +345,7 @@
       </div>
     </div>
     <button class="hbtn" id="headerWeightsBtn" onclick="openWeightsModalCurrent()" style="display:none">Wegingen aanpassen</button>
+    <button class="hbtn" onclick="showChangelog()" id="changelogBtn" style="position:relative"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;vertical-align:-1.5px;margin-right:3px;fill:currentColor"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Changelog</button>
     <button class="hbtn help-btn" onclick="openHelp()"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>Handleiding</button>
   </div>
 </div>
@@ -437,7 +471,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-left">
-      <strong>DAAF v0.8.1</strong> | &copy; 2026 Universiteit Utrecht | Tim van Neerbos<br>
+      <strong>DAAF v0.8.2</strong> | &copy; 2026 Universiteit Utrecht | Tim van Neerbos<br>
       Vrij te gebruiken door onderwijs-, non-profit- en overheidsorganisaties. Niet voor commercieel gebruik.<br>
       Verbeteringen graag communiceren aan <a href="mailto:t.m.vanneerbos@uu.nl">t.m.vanneerbos@uu.nl</a>
     </div>
@@ -758,13 +792,63 @@ function addApp(name) {
   setTimeout(()=>{const el=document.getElementById('name-'+id);if(el&&!name)el.focus();},100);
 }
 
-function removeApp(id) {
-  if (!confirm('Weet je zeker dat je deze applicatie wilt verwijderen?')) return;
-  delete state.apps[id];
-  state.order = state.order.filter(x=>x!==id);
+let pendingDeletes = [];
+let undoToastTimer = null;
+let undoToastEl = null;
+
+function dismissUndoToast() {
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+  if (undoToastEl) { undoToastEl.remove(); undoToastEl = null; }
+}
+
+function commitPendingDeletes() {
+  dismissUndoToast();
+  for (const pd of pendingDeletes) {
+    delete state.apps[pd.id];
+    state.order = state.order.filter(x=>x!==pd.id);
+  }
+  pendingDeletes = [];
   save();
   rebuildTabs();
+  if (state.currentView === 'overview') renderOverview();
+}
+
+function undoPendingDeletes() {
+  dismissUndoToast();
+  pendingDeletes = [];
+  rebuildTabs();
+  if (state.currentView === 'overview') renderOverview();
+  else {
+    const el = document.getElementById('view-' + state.currentView);
+    if (el) el.classList.remove('pending-delete');
+  }
+}
+
+function showUndoToast(msg) {
+  dismissUndoToast();
+  undoToastEl = document.createElement('div');
+  undoToastEl.className = 'undo-toast';
+  undoToastEl.innerHTML = '<span>' + msg + '</span><button onclick="undoPendingDeletes()">Ongedaan maken</button>';
+  document.body.appendChild(undoToastEl);
+  undoToastTimer = setTimeout(commitPendingDeletes, 10000);
+}
+
+function removeApp(id) {
+  // Commit any previous pending deletes first
+  if (pendingDeletes.length > 0) commitPendingDeletes();
+  pendingDeletes = [{ id: id, app: JSON.parse(JSON.stringify(state.apps[id])), orderIdx: state.order.indexOf(id) }];
+  showUndoToast('Applicatie verwijderd');
+  rebuildTabs();
   showView('overview');
+}
+
+function bulkRemoveApps(ids) {
+  if (ids.length === 0) return;
+  if (pendingDeletes.length > 0) commitPendingDeletes();
+  pendingDeletes = ids.map(id => ({ id: id, app: JSON.parse(JSON.stringify(state.apps[id])), orderIdx: state.order.indexOf(id) }));
+  showUndoToast(ids.length + ' applicaties verwijderd');
+  rebuildTabs();
+  renderOverview();
 }
 
 function duplicateApp(id) {
@@ -782,7 +866,9 @@ function duplicateApp(id) {
 function rebuildTabs() {
   const bar = document.getElementById('tabBar');
   let h = '<button class="tab overview'+(state.currentView==='overview'?' active':'')+'" onclick="showView(\'overview\')">Overzicht</button>';
+  const pendingIds = new Set(pendingDeletes.map(p=>p.id));
   for (const id of state.order) {
+    if (pendingIds.has(id)) continue;
     const app = state.apps[id];
     const name = app.name || 'Naamloos';
     const active = state.currentView===id?' active':'';
@@ -792,7 +878,8 @@ function rebuildTabs() {
   bar.innerHTML = h;
   // Update tab count
   const cnt = document.getElementById('tabCount');
-  if (cnt) cnt.textContent = state.order.length > 0 ? state.order.length + ' app' + (state.order.length!==1?'s':'') : '';
+  const visCount = state.order.length - pendingIds.size;
+  if (cnt) cnt.textContent = visCount > 0 ? visCount + ' app' + (visCount!==1?'s':'') : '';
   setTimeout(updateScrollBtns, 50);
 }
 
@@ -818,14 +905,31 @@ function renderOverview() {
     c.innerHTML = '<div style="text-align:center;padding:3rem;color:#bbb"><p style="font-size:1.2rem;margin-bottom:0.5rem">Nog geen applicaties beoordeeld</p><p style="font-size:0.85rem">Klik op <strong>+ Applicatie toevoegen</strong> om te beginnen, of importeer een applicatielijst via CSV.</p></div>';
     return;
   }
-  let h = '<table class="overview-grid"><tr><th>Applicatie</th><th>ID</th><th>Voortgang</th><th>Score (1-10)</th><th>Risico</th><th>Mitigatie</th><th>Belang</th><th>Ruwe score</th><th></th></tr>';
-  for (const id of state.order) {
+  const pendingIds = new Set(pendingDeletes.map(p=>p.id));
+  const visibleOrder = state.order.filter(id => !pendingIds.has(id));
+  let h = '';
+  // Export reminder: show if 3+ apps and 7+ days since last export/dismiss
+  if (visibleOrder.length >= 3) {
+    const lastAction = parseInt(localStorage.getItem('daaf_lastExportAction') || '0', 10);
+    const daysSince = (Date.now() - lastAction) / (1000 * 60 * 60 * 24);
+    if (daysSince >= 7 || lastAction === 0) {
+      h += '<div class="export-reminder" id="exportReminder">';
+      h += '<span>Je hebt <strong>' + visibleOrder.length + ' applicaties</strong> in je browser opgeslagen. Exporteer regelmatig naar JSON om je werk niet kwijt te raken.</span>';
+      h += '<span style="display:flex;gap:0.4rem;align-items:center"><button class="er-export" onclick="exportAllAndDismissReminder()">Exporteer nu</button>';
+      h += '<button class="er-close" onclick="dismissExportReminder()" title="Herinner me later">&times;</button></span>';
+      h += '</div>';
+    }
+  }
+  h += '<div class="bulk-bar" id="bulkBar" style="display:none"><button class="hbtn" style="background:var(--uu-red);color:white;font-weight:600" onclick="bulkDeleteSelected()">Verwijder geselecteerde</button><span id="bulkCount" style="font-size:0.8rem;color:#666"></span></div>';
+  h += '<table class="overview-grid"><tr><th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th><th>Applicatie</th><th>ID</th><th>Voortgang</th><th>Score (1-10)</th><th>Risico</th><th>Mitigatie</th><th>Belang</th><th>Ruwe score</th><th></th></tr>';
+  for (const id of visibleOrder) {
     const app = state.apps[id];
     const mode = state.modes?.[id] || 'full';
     const res = calcApp(app, mode);
     const pct = Math.round(res.filled/res.total*100);
     const pcolor = pct===100?'var(--green)':pct>50?'var(--orange)':'#ccc';
     h += `<tr>`;
+    h += `<td><input type="checkbox" class="row-check" value="${id}" onchange="updateBulkBar()"></td>`;
     h += `<td class="app-name" onclick="showView('${id}')">${esc(app.name)||'Naamloos'}</td>`;
     h += `<td style="font-size:0.75rem;color:#999">${esc(app.appId||'--')}</td>`;
     h += `<td>${pct}%<span class="progress-bar"><span class="progress-fill" style="width:${pct}%;background:${pcolor}"></span></span></td>`;
@@ -858,8 +962,8 @@ function renderOverview() {
   // Legend
   h += `<div class="q-legend">`;
   const plotted = [];
-  for (let idx=0; idx<state.order.length; idx++) {
-    const aid = state.order[idx];
+  for (let idx=0; idx<visibleOrder.length; idx++) {
+    const aid = visibleOrder[idx];
     const a = state.apps[aid];
     const r = calcApp(a, state.modes?.[aid] || 'full');
     if (r.nivs.risico && r.nivs.mitigatie && r.nivs.belang) {
@@ -1149,6 +1253,7 @@ function exportAll() {
     };
   }
   downloadBlob(JSON.stringify(data,null,2), 'application/json', `DAAF_export_${new Date().toISOString().slice(0,10)}.json`);
+  markExportAction();
 }
 
 function exportCSV() {
@@ -1307,6 +1412,100 @@ function downloadBlob(content, type, filename) {
   a.click();
 }
 
+// === BULK DELETE HELPERS ===
+function toggleSelectAll(el) {
+  document.querySelectorAll('.row-check').forEach(cb => { cb.checked = el.checked; });
+  updateBulkBar();
+}
+function updateBulkBar() {
+  const checked = document.querySelectorAll('.row-check:checked');
+  const bar = document.getElementById('bulkBar');
+  const cnt = document.getElementById('bulkCount');
+  if (bar) bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  if (cnt) cnt.textContent = checked.length + ' geselecteerd';
+  const sa = document.getElementById('selectAll');
+  const all = document.querySelectorAll('.row-check');
+  if (sa && all.length > 0) sa.checked = checked.length === all.length;
+}
+function bulkDeleteSelected() {
+  const ids = Array.from(document.querySelectorAll('.row-check:checked')).map(cb => cb.value);
+  if (ids.length === 0) return;
+  bulkRemoveApps(ids);
+}
+
+// === WHAT'S NEW MODAL ===
+const CHANGELOG = [
+  { version:'0.8.2', date:'2026-06-01', items:[
+    '<strong>Snel verwijderen:</strong> applicaties verwijderen zonder bevestigingsdialoog, met 10 seconden om het ongedaan te maken.',
+    '<strong>Bulk verwijderen:</strong> selecteer meerdere applicaties in het overzicht en verwijder ze in een keer.',
+    '<strong>Export-herinnering:</strong> een melding als je 3 of meer applicaties hebt en langer dan een week niet hebt geëxporteerd.',
+    '<strong>Changelog:</strong> versiehistorie bekijken via de knop in de werkbalk.'
+  ]},
+  { version:'0.8.1', date:'2026-03-15', items:[
+    '<strong>Quick scan modus:</strong> beoordeel applicaties snel met 9 kernindicatoren.',
+    '<strong>Autonomie-kwadrant:</strong> visueel overzicht van risico-exposure vs. mitigatie.',
+    '<strong>Wegingen aanpasbaar:</strong> pas indicatorwegingen aan per applicatie.',
+    '<strong>JSON en CSV export:</strong> exporteer alle assessments in meerdere formaten.',
+    '<strong>Woordenlijst:</strong> tooltips met uitleg bij vakjargon in rubrieken.'
+  ]},
+  { version:'0.8.0', date:'2026-02-01', items:[
+    '<strong>Eerste publieke versie:</strong> 22 indicatoren, 8 dimensies, 3 niveaus.',
+    '<strong>Lokale opslag:</strong> assessments worden automatisch bewaard in de browser.'
+  ]}
+];
+const CURRENT_VERSION = '0.8.2';
+
+function markExportAction() {
+  localStorage.setItem('daaf_lastExportAction', String(Date.now()));
+}
+function exportAllAndDismissReminder() {
+  exportAll();
+  markExportAction();
+  const el = document.getElementById('exportReminder');
+  if (el) el.remove();
+}
+function dismissExportReminder() {
+  markExportAction();
+  const el = document.getElementById('exportReminder');
+  if (el) el.remove();
+}
+
+function showChangelog() {
+  if (document.querySelector('.wn-overlay')) return;
+  const ov = document.createElement('div');
+  ov.className = 'wn-overlay';
+  ov.onclick = function(e) { if (e.target === ov) closeChangelog(); };
+  let html = '<div class="wn-modal"><button class="wn-close" onclick="closeChangelog()">&times;</button><h2>Changelog</h2>';
+  const lastSeen = localStorage.getItem('daaf_lastSeenVersion') || '0.0.0';
+  for (const entry of CHANGELOG) {
+    const isNew = entry.version > lastSeen;
+    html += '<div class="cl-version"><h3>v' + entry.version + (isNew ? '<span class="cl-new-badge">NIEUW</span>' : '') + '</h3>';
+    html += '<div class="cl-date">' + entry.date + '</div><ul>';
+    for (const item of entry.items) html += '<li>' + item + '</li>';
+    html += '</ul></div>';
+  }
+  html += '<button class="wn-ok" onclick="closeChangelog()">Sluiten</button></div>';
+  ov.innerHTML = html;
+  document.body.appendChild(ov);
+}
+function closeChangelog() {
+  const ov = document.querySelector('.wn-overlay');
+  if (ov) ov.remove();
+  localStorage.setItem('daaf_lastSeenVersion', CURRENT_VERSION);
+  updateChangelogDot();
+}
+function updateChangelogDot() {
+  const btn = document.getElementById('changelogBtn');
+  if (!btn) return;
+  const dot = btn.querySelector('.changelog-dot');
+  const lastSeen = localStorage.getItem('daaf_lastSeenVersion') || '0.0.0';
+  if (CURRENT_VERSION > lastSeen) {
+    if (!dot) { const d = document.createElement('span'); d.className = 'changelog-dot'; btn.appendChild(d); }
+  } else {
+    if (dot) dot.remove();
+  }
+}
+
 // === INIT ===
 load();
 rebuildTabs();
@@ -1315,6 +1514,10 @@ if (state.currentView && state.currentView!=='overview' && state.apps[state.curr
   showView(state.currentView);
 } else {
   showView('overview');
+}
+updateChangelogDot();
+if (localStorage.getItem('daaf_lastSeenVersion') !== CURRENT_VERSION) {
+  showChangelog();
 }
 </script>
 </body>
