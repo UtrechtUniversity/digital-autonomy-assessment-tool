@@ -430,7 +430,7 @@
       <p>Elke indicator heeft een standaardweging (2 of 3). Via het scherm "Wegingen aanpassen" kun je de wegingen aanpassen (1-5). De weging bepaalt hoeveel invloed een indicator heeft <strong>binnen zijn dimensie</strong>. Bijvoorbeeld: als je C1 (Alternatief beschikbaar) op weging 5 zet en C2 op weging 1, telt C1 vijf keer zo zwaar mee in de dimensiescore van "Technische weerbaarheid". Aangepaste wegingen worden rood weergegeven. Doe dit alleen in overleg met je organisatie of sector om onderlinge vergelijkbaarheid te behouden.</p>
 
       <h3>Opmerkingen per indicator</h3>
-      <p>Bij elke indicator kun je een opmerking plaatsen om je score te onderbouwen. Dit is optioneel maar aangeraden: het maakt je beoordeling transparant en reproduceerbaar. Opmerkingen worden meegenomen bij JSON-export en -import.</p>
+      <p>Bij elke indicator kun je een opmerking plaatsen om je score te onderbouwen. Dit is optioneel maar aangeraden: het maakt je beoordeling transparant en reproduceerbaar. Opmerkingen worden meegenomen bij JSON-export en -import en als kolom "Toelichting" in de gedetailleerde CSV-export.</p>
 
       <h3>Quick scan</h3>
       <p>Schakel naar "Quick scan" om alleen de 9 kernindicatoren te tonen (1 per dimensie + A3 Hosting). De berekening werkt identiek, maar is gebaseerd op minder datapunten. De score is <strong>indicatief</strong>; voor een volledige beoordeling gebruik je het volledige assessment.</p>
@@ -1278,7 +1278,7 @@ function exportCSV() {
 
 function exportODF() {
   let csv = '\uFEFF';
-  csv += 'Applicatie-ID;Applicatie;Code;Indicator;Weging;Score;Gewogen;Dimensie;Dimensiescore;Niveauscore;Autonomie Score (1-10)\n';
+  csv += 'Applicatie-ID;Applicatie;Code;Indicator;Weging;Score;Gewogen;Dimensie;Dimensiescore;Niveauscore;Autonomie Score (1-10);Toelichting\n';
   for (const id of state.order) {
     const app = state.apps[id];
     const res = calcApp(app, state.modes?.[id] || 'full');
@@ -1287,6 +1287,7 @@ function exportODF() {
     for (const ind of INDICATORS) {
       const sc = app.scores[ind.code];
       const w = app.weights[ind.code]||ind.w;
+      const rem = (app.remarks && app.remarks[ind.code]) ? String(app.remarks[ind.code]).replace(/"/g,'""').replace(/[\r\n]+/g,' ') : '';
       csv += `"${appId}";"${appName}";"${ind.code}";"${ind.title}";${w};${sc||''};${sc?sc*w:''};"${ind.dim}. ${DIMS[ind.dim]}";${res.dims[ind.dim]?res.dims[ind.dim].toFixed(2):''};`;
       if (ind.code==='A1'||ind.code==='C1'||ind.code==='F1') {
         const nivKey = ind.niv===1?'risico':ind.niv===2?'mitigatie':'belang';
@@ -1294,6 +1295,7 @@ function exportODF() {
       }
       csv += ';';
       if (ind.code==='A1') csv += res.score10?res.score10.toFixed(1):'';
+      csv += `;"${rem}"`;
       csv += '\n';
     }
   }
