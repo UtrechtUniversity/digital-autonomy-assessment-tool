@@ -81,6 +81,8 @@ The result is normalised to a 1-10 scale using a logarithmic function, where 1 i
 
 The multilingual translations were created with the help of **Thomas Steenbergen** (OSPO Advisor at [SIVON](https://www.sivon.nl)). Dutch and English are verified; the German, French, Spanish, Italian and Danish translations are best effort and not yet reviewed by native speakers. Contributions are welcome.
 
+Thanks to **Dr. Jonas Heller** (Maastricht University) for suggesting the move to self-hosted (bundled) web fonts, removing the dependency on Google's font servers.
+
 ## License
 
 This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
