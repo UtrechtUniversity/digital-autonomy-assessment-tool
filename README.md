@@ -1,6 +1,6 @@
 # Digital Autonomy Assessment Tool
 
-A browser-based assessment tool that implements the Digital Autonomy Assessment Framework (DAAF). Helps organisations evaluate the digital autonomy of their application landscape. Developed at Utrecht University as part of the UU Digital Autonomy project.
+A browser-based assessment tool that implements the Digital Autonomy Assessment Framework (DAAF). Helps organisations evaluate the digital autonomy of their application landscape. Developed at Utrecht University as part of the Digital Autonomy programme.
 
 ## About
 
@@ -17,11 +17,16 @@ This tool implements the framework as an interactive, browser-based assessment. 
 ## Features
 
 - Fully client-side: runs entirely in the browser, no server required
+- Works fully offline and makes no external requests: fonts are bundled, so no data (such as IP addresses) is sent to third parties
 - Data is stored locally in the browser (localStorage)
 - Quick scan (9 indicators) and full assessment (22 indicators)
 - Assess and compare multiple applications side by side
-- Import/export via JSON and CSV
-- Guided scoring with rubrics per indicator
+- Adjustable indicator weights per application
+- Import/export via JSON and CSV (summary and detailed, the detailed export includes the per-indicator remarks)
+- Guided scoring with rubrics and glossary tooltips per indicator
+- Quick delete with undo, and bulk delete
+- Export reminder to help prevent data loss
+- Changelog viewer for version history
 
 ## Usage
 
@@ -39,7 +44,7 @@ Or download `index.html` and open it locally in your browser.
 
 ### Data privacy
 
-All data stays in your browser. Nothing is sent to a server. You can export assessments as JSON (for backup or transfer) or CSV (for further analysis).
+All data stays in your browser. Nothing is sent to a server, and the page makes no external requests at all (fonts are bundled in the file). You can export assessments as JSON (for backup or transfer) or CSV (for further analysis).
 
 ## Dimensions
 
@@ -66,7 +71,8 @@ The result is normalised to a 1-10 scale using a logarithmic function, where 1 i
 
 ## Technical details
 
-- Single HTML file, no external dependencies
+- Single HTML file, no external dependencies or network requests
+- Fonts (Merriweather, OFL; Open Sans, Apache 2.0) are embedded as woff2
 - Plain JavaScript, no frameworks or external libraries
 - Responsive design
 
@@ -77,4 +83,4 @@ This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licens
 ## Contact
 
 - Tim van Neerbos, Lead Enterprise Architect, Utrecht University
-- Email: t.m.vanneerbos@uu.nl
+- Email: tim@vneerbos.nl
