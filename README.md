@@ -12,7 +12,7 @@ The Digital Autonomy Assessment Framework (DAAF) is a structured approach to ass
 
 This tool implements the framework as an interactive, browser-based assessment. Based on 22 indicators across 8 dimensions, it calculates an autonomy score (1-10) per application. Results are presented in a summary table and an autonomy quadrant that provides immediate insight into which applications require attention.
 
-> **Note:** The tool interface is currently in Dutch. An English version is planned for a future release.
+> **Note:** The tool is available in seven languages (Dutch, English, German, French, Spanish, Italian and Danish), with Dutch as the default. Dutch and English are verified; the other languages are best effort and not yet reviewed by native speakers (contributions welcome). The user guide is available in Dutch and English (other languages show English).
 
 ## Features
 
@@ -23,6 +23,7 @@ This tool implements the framework as an interactive, browser-based assessment. 
 - Assess and compare multiple applications side by side
 - Adjustable indicator weights per application
 - Import/export via JSON and CSV (summary and detailed, the detailed export includes the per-indicator remarks)
+- Multilingual: Dutch, English, German, French, Spanish, Italian and Danish (switch language from the toolbar)
 - Guided scoring with rubrics and glossary tooltips per indicator
 - Quick delete with undo, and bulk delete
 - Export reminder to help prevent data loss
@@ -37,7 +38,7 @@ Or download `index.html` and open it locally in your browser.
 
 ### Getting started
 
-1. Click "Nieuwe applicatie" (New application) and enter a name
+1. Click "+ Add Application" and enter a name
 2. Choose Quick scan or Full assessment
 3. Score each indicator using the provided rubrics
 4. View the results in the overview table and autonomy quadrant
@@ -76,6 +77,10 @@ The result is normalised to a 1-10 scale using a logarithmic function, where 1 i
 - Plain JavaScript, no frameworks or external libraries
 - Responsive design
 
+## Acknowledgements
+
+The multilingual translations were created with the help of **Thomas Steenbergen** (OSPO Advisor at [SIVON](https://www.sivon.nl)). Dutch and English are verified; the German, French, Spanish, Italian and Danish translations are best effort and not yet reviewed by native speakers. Contributions are welcome.
+
 ## License
 
 This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
@@ -83,4 +88,4 @@ This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licens
 ## Contact
 
 - Tim van Neerbos, Lead Enterprise Architect, Utrecht University
-- Email: tim@vneerbos.nl
+- Email: t.m.vanneerbos@uu.nl
