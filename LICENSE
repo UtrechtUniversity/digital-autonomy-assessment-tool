@@ -1,6 +1,6 @@
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
 
-Copyright (c) 2026 Universiteit Utrecht - Tim van Neerbos
+Copyright (c) 2026 Utrecht University - Tim van Neerbos
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike
 4.0 International License.
@@ -24,3 +24,27 @@ Under the following terms:
   measures that legally restrict others from doing anything the license permits.
 
 Full license text: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+
+Additional permission (CC+)
+---------------------------
+
+In addition to the rights granted under CC BY-NC-SA 4.0, Utrecht University
+grants every organisation, including commercial organisations, permission to use
+the DAAF and this tool free of charge to assess its own applications and IT
+landscape, and to share the results within the organisation and with its own
+auditors and supervisory bodies. This includes consultants acting on behalf of
+such an organisation.
+
+This additional permission applies only if:
+
+  - the DAAF is credited to its original author (Tim van Neerbos, Utrecht
+    University) with a link to
+    https://github.com/UtrechtUniversity/digital-autonomy-assessment-tool;
+  - the DAAF is not presented as the method, model or product of anyone else,
+    and no other names, logos or branding are added to it;
+  - the DAAF is not sold, licensed or offered as (part of) a paid product, and
+    is not turned into, or merged into, another framework or model.
+
+For any other commercial use, please contact the author first
+(t.m.vanneerbos@uu.nl).
