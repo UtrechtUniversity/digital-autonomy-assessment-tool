@@ -1545,6 +1545,24 @@
   .tpl-prev-dim .dim-code { flex-shrink:0; }
   @media (max-width:600px) { .tpl-prev ul { padding-left:0; } .tpl-prev { padding:0.7rem; } }
 
+  /* Live voorbeeld van sjabloonteksten in de profieleditor */
+  .pe-tplprev-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.5rem 0.8rem; margin-top:0.7rem; padding-top:0.7rem; border-top:1px dashed var(--accent); }
+  .pe-tplprev-bar[hidden] { display:none; }
+  #peTplPrevMsg { display:inline-flex; align-items:flex-start; gap:0.4rem; font-size:0.8rem; font-weight:600; color:var(--ink); line-height:1.45; }
+  #peTplPrevMsg .ic { width:16px; height:16px; flex-shrink:0; margin-top:1px; color:var(--accent-ink); }
+  .pe-tplprev-acts { display:inline-flex; gap:0.4rem; flex-shrink:0; }
+  .pe-previewing .pe-tplbar { position:sticky; top:-1px; z-index:3; box-shadow:0 6px 16px -10px rgba(0,0,0,.35); }
+  .pe-previewing .pe-fs input[readonly], .pe-previewing .pe-fs textarea[readonly] { border-style:dashed !important; border-color:var(--accent) !important; background:var(--accent-soft) !important; color:var(--ink) !important; cursor:default; }
+  .pe-previewing .pe-fs input[readonly]:focus, .pe-previewing .pe-fs textarea[readonly]:focus { box-shadow:none !important; }
+  .pe-previewing .pe-tplbar > div > small { display:none; }
+  @media (max-width:600px) { .pe-previewing .pe-tplbar { position:static; box-shadow:none; } }
+  .pf-create-hint { margin:0.55rem 0 0; }
+
+  /* Handleiding: genummerde en ongenummerde lijsten gelijk uitgelijnd met de tekst */
+  #helpModal .modal-body ol, #helpModal .modal-body ul { margin:0.3rem 0 0.8rem !important; padding-left:1.35rem !important; font-size:0.85rem; line-height:1.6; color:var(--text-2) !important; }
+  #helpModal .modal-body ol li::marker { font-weight:700; color:var(--ink); }
+  #helpModal .modal-body li > strong { color:var(--ink); }
+
 </style>
 </head>
 <body>
@@ -1958,6 +1976,7 @@ const UI_X = {
 "pfActive": "Profiel voor nieuwe assessments",
 "pfApps": "{n} applicatie(s)",
 "pfCreate": "Eigen profiel maken",
+"pfCreateHint": "In het profiel kies je een sectorsjabloon en zie je de teksten meteen als voorbeeld, voordat je iets overneemt. Er wordt pas iets bewaard als je op Opslaan klikt.",
 "pfEditBtn": "Profiel bewerken",
 "pfFixed": "vast",
 "pfH": "Dimensie H: {v}",
@@ -1974,10 +1993,14 @@ const UI_X = {
 "pfTextsHOff": "Dimensie H staat uit in dit profiel; deze teksten worden dan niet gebruikt.",
 "pfTextsIntro": "Pas de sectorgebonden teksten aan: dimensie H (naam, omschrijving, H1 tot en met H3) en G2. De overige indicatoren en de schaal blijven voor iedereen gelijk.",
 "pfTplApply": "Overnemen",
-"pfTplBarSub": "Vul dimensie H en G2 met de teksten van een sectorsjabloon en pas ze daarna naar wens aan. Je weging en de instelling van dimensie H veranderen niet.",
+"pfTplBack": "Terug naar mijn teksten",
+"pfTplBarSub": "Kies een sjabloon: de velden hieronder tonen meteen de teksten ervan als voorbeeld. Pas als je op Overnemen klikt, komen ze in je profiel. Je weging en de instelling van dimensie H veranderen niet.",
 "pfTplBarTitle": "Teksten overnemen uit een sjabloon",
+"pfTplBarTitleNew": "Kies een sectorsjabloon (optioneel)",
 "pfTplConfirm": "De huidige teksten van dimensie H en G2 worden vervangen door die van \"{t}\". Doorgaan?",
 "pfTplDone": "Teksten van \"{t}\" overgenomen. Vergeet niet op te slaan.",
+"pfTplPick": "Kies een sjabloon om te bekijken…",
+"pfTplPreviewing": "Voorbeeld van \"{t}\". De velden hieronder tonen de teksten van dit sjabloon; er is nog niets overgenomen.",
 "pfUse": "Gebruik voor nieuwe assessments",
 "pfVersion": "versie {v}",
 "pfW": "Weging: {v}",
@@ -2273,6 +2296,7 @@ const UI_X = {
 "pfActive": "Profile for new assessments",
 "pfApps": "{n} application(s)",
 "pfCreate": "Create own profile",
+"pfCreateHint": "In the profile you choose a sector template and immediately see its texts as a preview, before you copy anything. Nothing is stored until you click Save.",
 "pfEditBtn": "Edit profile",
 "pfFixed": "fixed",
 "pfH": "Dimension H: {v}",
@@ -2289,10 +2313,14 @@ const UI_X = {
 "pfTextsHOff": "Dimension H is switched off in this profile; these texts are then not used.",
 "pfTextsIntro": "Adapt the sector-specific texts: dimension H (name, description, H1 to H3) and G2. The other indicators and the scale stay the same for everyone.",
 "pfTplApply": "Copy",
-"pfTplBarSub": "Fill dimension H and G2 with the texts of a sector template, then adapt them as you like. Your weights and the dimension H setting do not change.",
+"pfTplBack": "Back to my texts",
+"pfTplBarSub": "Choose a template: the fields below immediately show its texts as a preview. Only when you click Copy are they added to your profile. Your weights and the dimension H setting do not change.",
 "pfTplBarTitle": "Copy texts from a template",
+"pfTplBarTitleNew": "Choose a sector template (optional)",
 "pfTplConfirm": "The current texts of dimension H and G2 will be replaced by those of \"{t}\". Continue?",
 "pfTplDone": "Texts of \"{t}\" copied. Remember to save.",
+"pfTplPick": "Choose a template to view…",
+"pfTplPreviewing": "Preview of \"{t}\". The fields below show the texts of this template; nothing has been copied yet.",
 "pfUse": "Use for new assessments",
 "pfVersion": "version {v}",
 "pfW": "Weights: {v}",
@@ -2588,6 +2616,7 @@ const UI_X = {
 "pfActive": "Profil für neue Bewertungen",
 "pfApps": "{n} Anwendung(en)",
 "pfCreate": "Eigenes Profil erstellen",
+"pfCreateHint": "Im Profil wählen Sie eine Sektorvorlage und sehen deren Texte sofort als Vorschau, bevor Sie etwas übernehmen. Gespeichert wird erst, wenn Sie auf Speichern klicken.",
 "pfEditBtn": "Profil bearbeiten",
 "pfFixed": "festgelegt",
 "pfH": "Dimension H: {v}",
@@ -2604,10 +2633,14 @@ const UI_X = {
 "pfTextsHOff": "Dimension H ist in diesem Profil ausgeschaltet; diese Texte werden dann nicht verwendet.",
 "pfTextsIntro": "Passen Sie die sektorspezifischen Texte an: Dimension H (Name, Beschreibung, H1 bis H3) und G2. Die übrigen Indikatoren und die Skala bleiben für alle gleich.",
 "pfTplApply": "Übernehmen",
-"pfTplBarSub": "Füllen Sie Dimension H und G2 mit den Texten einer Sektorvorlage und passen Sie sie danach nach Wunsch an. Ihre Gewichtung und die Einstellung von Dimension H ändern sich nicht.",
+"pfTplBack": "Zurück zu meinen Texten",
+"pfTplBarSub": "Wählen Sie eine Vorlage: Die Felder unten zeigen sofort deren Texte als Vorschau. Erst wenn Sie auf Übernehmen klicken, werden sie in Ihr Profil übernommen. Ihre Gewichtung und die Einstellung von Dimension H ändern sich nicht.",
 "pfTplBarTitle": "Texte aus einer Vorlage übernehmen",
+"pfTplBarTitleNew": "Sektorvorlage wählen (optional)",
 "pfTplConfirm": "Die aktuellen Texte von Dimension H und G2 werden durch die von „{t}“ ersetzt. Fortfahren?",
 "pfTplDone": "Texte von „{t}“ übernommen. Vergessen Sie nicht zu speichern.",
+"pfTplPick": "Vorlage zur Ansicht wählen…",
+"pfTplPreviewing": "Vorschau von „{t}“. Die Felder unten zeigen die Texte dieser Vorlage; es wurde noch nichts übernommen.",
 "pfUse": "Für neue Bewertungen verwenden",
 "pfVersion": "Version {v}",
 "pfW": "Gewichtung: {v}",
@@ -2903,6 +2936,7 @@ const UI_X = {
 "pfActive": "Profil pour les nouvelles évaluations",
 "pfApps": "{n} application(s)",
 "pfCreate": "Créer un profil propre",
+"pfCreateHint": "Dans le profil, vous choisissez un modèle sectoriel et voyez aussitôt ses textes en aperçu, avant de reprendre quoi que ce soit. Rien n’est enregistré tant que vous ne cliquez pas sur Enregistrer.",
 "pfEditBtn": "Modifier le profil",
 "pfFixed": "figé",
 "pfH": "Dimension H : {v}",
@@ -2919,10 +2953,14 @@ const UI_X = {
 "pfTextsHOff": "La dimension H est désactivée dans ce profil ; ces textes ne sont alors pas utilisés.",
 "pfTextsIntro": "Adaptez les textes propres au secteur : la dimension H (nom, description, H1 à H3) et G2. Les autres indicateurs et l'échelle restent identiques pour tous.",
 "pfTplApply": "Reprendre",
-"pfTplBarSub": "Remplissez la dimension H et G2 avec les textes d’un modèle sectoriel, puis adaptez-les à votre convenance. Vos pondérations et le réglage de la dimension H ne changent pas.",
+"pfTplBack": "Revenir à mes textes",
+"pfTplBarSub": "Choisissez un modèle : les champs ci-dessous affichent aussitôt ses textes en aperçu. Ils ne sont ajoutés à votre profil que lorsque vous cliquez sur Reprendre. Votre pondération et le réglage de la dimension H ne changent pas.",
 "pfTplBarTitle": "Reprendre les textes d’un modèle",
+"pfTplBarTitleNew": "Choisir un modèle sectoriel (facultatif)",
 "pfTplConfirm": "Les textes actuels de la dimension H et de G2 seront remplacés par ceux de « {t} ». Continuer ?",
 "pfTplDone": "Textes de « {t} » repris. N’oubliez pas d’enregistrer.",
+"pfTplPick": "Choisir un modèle à consulter…",
+"pfTplPreviewing": "Aperçu de « {t} ». Les champs ci-dessous affichent les textes de ce modèle ; rien n’a encore été repris.",
 "pfUse": "Utiliser pour les nouvelles évaluations",
 "pfVersion": "version {v}",
 "pfW": "Pondérations : {v}",
@@ -3218,6 +3256,7 @@ const UI_X = {
 "pfActive": "Perfil para nuevas evaluaciones",
 "pfApps": "{n} aplicación(es)",
 "pfCreate": "Crear perfil propio",
+"pfCreateHint": "En el perfil eliges una plantilla sectorial y ves sus textos enseguida como vista previa, antes de copiar nada. No se guarda nada hasta que hagas clic en Guardar.",
 "pfEditBtn": "Editar perfil",
 "pfFixed": "fijo",
 "pfH": "Dimensión H: {v}",
@@ -3234,10 +3273,14 @@ const UI_X = {
 "pfTextsHOff": "La dimensión H está desactivada en este perfil; por tanto, estos textos no se usan.",
 "pfTextsIntro": "Adapta los textos específicos del sector: la dimensión H (nombre, descripción, H1 a H3) y G2. Los demás indicadores y la escala son iguales para todos.",
 "pfTplApply": "Copiar",
-"pfTplBarSub": "Rellena la dimensión H y G2 con los textos de una plantilla sectorial y adáptalos después como quieras. Tus pesos y el ajuste de la dimensión H no cambian.",
+"pfTplBack": "Volver a mis textos",
+"pfTplBarSub": "Elige una plantilla: los campos de abajo muestran enseguida sus textos como vista previa. Solo al hacer clic en Copiar se añaden a tu perfil. Tu ponderación y el ajuste de la dimensión H no cambian.",
 "pfTplBarTitle": "Copiar textos de una plantilla",
+"pfTplBarTitleNew": "Elige una plantilla sectorial (opcional)",
 "pfTplConfirm": "Los textos actuales de la dimensión H y G2 se sustituirán por los de «{t}». ¿Continuar?",
 "pfTplDone": "Textos de «{t}» copiados. No olvides guardar.",
+"pfTplPick": "Elige una plantilla para ver…",
+"pfTplPreviewing": "Vista previa de «{t}». Los campos de abajo muestran los textos de esta plantilla; todavía no se ha copiado nada.",
 "pfUse": "Usar para nuevas evaluaciones",
 "pfVersion": "versión {v}",
 "pfW": "Pesos: {v}",
@@ -3533,6 +3576,7 @@ const UI_X = {
 "pfActive": "Profilo per le nuove valutazioni",
 "pfApps": "{n} applicazione/i",
 "pfCreate": "Crea profilo proprio",
+"pfCreateHint": "Nel profilo scegli un modello di settore e vedi subito i suoi testi in anteprima, prima di copiare qualcosa. Nulla viene salvato finché non fai clic su Salva.",
 "pfEditBtn": "Modifica profilo",
 "pfFixed": "fisso",
 "pfH": "Dimensione H: {v}",
@@ -3549,10 +3593,14 @@ const UI_X = {
 "pfTextsHOff": "La dimensione H è disattivata in questo profilo; questi testi quindi non vengono usati.",
 "pfTextsIntro": "Adatta i testi specifici del settore: la dimensione H (nome, descrizione, da H1 a H3) e G2. Gli altri indicatori e la scala restano uguali per tutti.",
 "pfTplApply": "Copia",
-"pfTplBarSub": "Compila la dimensione H e G2 con i testi di un modello di settore, poi adattali a piacere. I pesi e l’impostazione della dimensione H non cambiano.",
+"pfTplBack": "Torna ai miei testi",
+"pfTplBarSub": "Scegli un modello: i campi qui sotto mostrano subito i suoi testi in anteprima. Vengono aggiunti al tuo profilo solo quando fai clic su Copia. La tua ponderazione e l’impostazione della dimensione H non cambiano.",
 "pfTplBarTitle": "Copia i testi da un modello",
+"pfTplBarTitleNew": "Scegli un modello di settore (facoltativo)",
 "pfTplConfirm": "I testi attuali della dimensione H e di G2 saranno sostituiti da quelli di «{t}». Continuare?",
 "pfTplDone": "Testi di «{t}» copiati. Ricordati di salvare.",
+"pfTplPick": "Scegli un modello da visualizzare…",
+"pfTplPreviewing": "Anteprima di «{t}». I campi qui sotto mostrano i testi di questo modello; non è stato ancora copiato nulla.",
 "pfUse": "Usa per le nuove valutazioni",
 "pfVersion": "versione {v}",
 "pfW": "Pesi: {v}",
@@ -3848,6 +3896,7 @@ const UI_X = {
 "pfActive": "Profil til nye vurderinger",
 "pfApps": "{n} applikation(er)",
 "pfCreate": "Opret egen profil",
+"pfCreateHint": "I profilen vælger du en sektorskabelon og ser straks dens tekster som eksempel, før du overtager noget. Intet gemmes, før du klikker på Gem.",
 "pfEditBtn": "Rediger profil",
 "pfFixed": "låst",
 "pfH": "Dimension H: {v}",
@@ -3864,10 +3913,14 @@ const UI_X = {
 "pfTextsHOff": "Dimension H er slået fra i denne profil; disse tekster bruges derfor ikke.",
 "pfTextsIntro": "Tilpas de sektorspecifikke tekster: dimension H (navn, beskrivelse, H1 til H3) og G2. De øvrige indikatorer og skalaen er de samme for alle.",
 "pfTplApply": "Overtag",
-"pfTplBarSub": "Udfyld dimension H og G2 med teksterne fra en sektorskabelon, og tilpas dem derefter efter behov. Dine vægte og indstillingen for dimension H ændres ikke.",
+"pfTplBack": "Tilbage til mine tekster",
+"pfTplBarSub": "Vælg en skabelon: felterne nedenfor viser straks dens tekster som eksempel. Først når du klikker på Overtag, kommer de ind i din profil. Din vægtning og indstillingen for dimension H ændres ikke.",
 "pfTplBarTitle": "Overtag tekster fra en skabelon",
+"pfTplBarTitleNew": "Vælg en sektorskabelon (valgfrit)",
 "pfTplConfirm": "De nuværende tekster for dimension H og G2 erstattes af teksterne fra \"{t}\". Fortsæt?",
 "pfTplDone": "Tekster fra \"{t}\" overtaget. Husk at gemme.",
+"pfTplPick": "Vælg en skabelon at se…",
+"pfTplPreviewing": "Eksempel på \"{t}\". Felterne nedenfor viser teksterne fra denne skabelon; intet er overtaget endnu.",
 "pfUse": "Brug til nye vurderinger",
 "pfVersion": "version {v}",
 "pfW": "Vægte: {v}",
@@ -4112,8 +4165,8 @@ function tx(k, vars){
     profiles:`<h3>Profielen</h3>
       <p>Een <strong>profiel</strong> legt vast hoe jouw organisatie het DAAF gebruikt. Het bevat drie dingen: de <strong>sectorteksten</strong> (dimensie H en G2), of <strong>dimensie H</strong> meetelt, en de <strong>weging</strong>. Het DAAF is ontwikkeld voor het hoger onderwijs; het standaardprofiel is precies dat en ligt vast, zodat scores vergelijkbaar blijven. De overige indicatoren, de schaal en de berekening zijn voor iedereen gelijk.</p>
       <ul>
-        <li><strong>Eigen profiel maken:</strong> via de knop "Profiel" in de werkbalk. Je begint met een sectorsjabloon: hoger onderwijs (standaard), funderend onderwijs, gemeente, rijksoverheid, provincie, waterschap of uitvoeringsorganisatie (zoals UWV, DUO of Belastingdienst) of generiek. Het sjabloon is alleen het vertrekpunt; daarna is het het profiel van jouw organisatie. Met "Teksten bekijken" zie je vooraf de sectorteksten van een sjabloon. De sjablonen buiten het hoger onderwijs zijn een eerste versie en feedback is welkom.</li>
-        <li><strong>Sectorteksten (tabblad):</strong> de naam en omschrijving van dimensie H, en per indicator H1, H2, H3 en G2 de titel, de vraag, de vijf rubrieken en de toelichting. Een leeg veld gebruikt de standaardtekst. Bovenaan het tabblad kun je met "Teksten overnemen uit een sjabloon" de teksten van een ander sectorsjabloon in één keer overnemen en daarna aanpassen. In een assessment open je deze teksten ook met het pennetje bij dimensie H en G2.</li>
+        <li><strong>Eigen profiel maken:</strong> via de knop "Profiel" in de werkbalk. In het profiel kies je bovenaan het tabblad Sectorteksten een sectorsjabloon: hoger onderwijs (standaard), funderend onderwijs, gemeente, rijksoverheid, provincie, waterschap of uitvoeringsorganisatie (zoals UWV, DUO of Belastingdienst) of generiek. Het sjabloon is alleen het vertrekpunt; daarna is het het profiel van jouw organisatie. Kies je een sjabloon, dan tonen de velden meteen de teksten ervan als voorbeeld; pas met Overnemen komen ze in je profiel, en pas bij Opslaan wordt het profiel bewaard. De sjablonen buiten het hoger onderwijs zijn een eerste versie en feedback is welkom.</li>
+        <li><strong>Sectorteksten (tabblad):</strong> de naam en omschrijving van dimensie H, en per indicator H1, H2, H3 en G2 de titel, de vraag, de vijf rubrieken en de toelichting. Een leeg veld gebruikt de standaardtekst. Bovenaan het tabblad kies je bij "Teksten overnemen uit een sjabloon" een ander sectorsjabloon: de velden tonen dan meteen de teksten ervan als voorbeeld. Pas met Overnemen komen ze in je profiel; daarna kun je ze aanpassen. In een assessment open je deze teksten ook met het pennetje bij dimensie H en G2.</li>
         <li><strong>Dimensie H (tabblad):</strong> past dimensie H niet bij je organisatie, zet hem dan uit. Strategisch belang wordt dan het gemiddelde van F en G; het volledige assessment heeft 19 indicatoren en de quick scan 8. Dit verandert de score en maakt die minder vergelijkbaar met assessments waarin H wel meetelt. Ook de knop "H uitzetten" bij dimensie H in een assessment brengt je hier.</li>
         <li><strong>Weging (tabblad):</strong> één weging voor je hele organisatie. Elke indicator telt binnen zijn dimensie mee met een weging van 1 tot 5; wat je hier instelt, geldt voor alle applicaties met dit profiel. Het sjabloon verandert de weging niet. Per applicatie kun je nog afwijken met de knop "Weging" in het assessment.</li>
         <li><strong>Profiel voor nieuwe assessments:</strong> het profiel bovenaan in het venster krijgen alle nieuwe assessments. Maak je je eerste eigen profiel, dan vraagt de tool of bestaande applicaties het ook mogen gebruiken. Meerdere profielen kan, onder "Andere profielen", maar de meeste organisaties hebben er één nodig. Bovenaan elk assessment zie en wissel je het profiel.</li>
@@ -4166,8 +4219,8 @@ function tx(k, vars){
     profiles:`<h3>Profiles</h3>
       <p>A <strong>profile</strong> sets how your organisation uses the DAAF. It holds three things: the <strong>sector texts</strong> (dimension H and G2), whether <strong>dimension H</strong> counts, and the <strong>weights</strong>. The DAAF was developed for higher education; the default profile is exactly that and is fixed, so scores stay comparable. The other indicators, the scale and the calculation are the same for everyone.</p>
       <ul>
-        <li><strong>Creating your own profile:</strong> via the "Profile" button in the toolbar. You start from a sector template: higher education (default), primary and secondary education, municipality, central government, province, water authority or executive agency (such as tax or benefits agencies), or generic. The template is only the starting point; after that it is your organisation's profile. With "View texts" you can see the sector texts of a template beforehand. The templates outside higher education are a first version and feedback is welcome.</li>
-        <li><strong>Sector texts (tab):</strong> the name and description of dimension H, and for indicators H1, H2, H3 and G2 the title, question, five rubrics and guidance. An empty field uses the default text. At the top of the tab, "Copy texts from a template" copies the texts of another sector template in one go, which you can then adapt. In an assessment you also open these texts with the pencil next to dimension H and G2.</li>
+        <li><strong>Creating your own profile:</strong> via the "Profile" button in the toolbar. In the profile you choose a sector template at the top of the Sector texts tab: higher education (default), primary and secondary education, municipality, central government, province, water authority or executive agency (such as tax or benefits agencies), or generic. The template is only the starting point; after that it is your organisation's profile. When you choose a template, the fields immediately show its texts as a preview; only Copy adds them to your profile, and the profile is stored only when you click Save. The templates outside higher education are a first version and feedback is welcome.</li>
+        <li><strong>Sector texts (tab):</strong> the name and description of dimension H, and for indicators H1, H2, H3 and G2 the title, question, five rubrics and guidance. An empty field uses the default text. At the top of the tab, choose another sector template under "Copy texts from a template": the fields immediately show its texts as a preview. Only Copy adds them to your profile; after that you can adapt them. In an assessment you also open these texts with the pencil next to dimension H and G2.</li>
         <li><strong>Dimension H (tab):</strong> if dimension H does not fit your organisation, switch it off. Strategic importance then becomes the average of F and G; the full assessment has 19 indicators and the quick scan 8. This changes the score and makes it less comparable with assessments in which H counts. The "Switch H off" button at dimension H in an assessment also brings you here.</li>
         <li><strong>Weights (tab):</strong> one weighting for your whole organisation. Each indicator counts within its dimension with a weight from 1 to 5; what you set here applies to all applications with this profile. The template does not change the weights. Per application you can still deviate with the "Weights" button in the assessment.</li>
         <li><strong>Profile for new assessments:</strong> all new assessments get the profile shown at the top of the window. When you create your first own profile, the tool asks whether existing applications may use it too. Several profiles are possible, under "Other profiles", but most organisations need only one. At the top of each assessment you see and switch the profile.</li>
@@ -4209,10 +4262,10 @@ function tx(k, vars){
     body = section(body, nl?'Het kwadrant':'The quadrant', X.overview);
     body = section(body, nl?'Wegingen aanpassen':'Adjusting weights', X.weights);
     body = after(body, nl?'Wegingen':'Weights', X.profiles);
-    // Samen invullen staat bovenaan (na "Hoe werkt het?"); organisatieonderdeel, leverancier en prullenbak blijven onderaan
+    // Samen invullen staat hoog in de handleiding (na "Wat zegt de score?", voor "Het overzicht"); organisatieonderdeel, leverancier en prullenbak blijven onderaan
     const cut = X.together.indexOf('<h3>', 5); const together = X.together.slice(0, cut), rest = X.together.slice(cut);
     body = body.replace(/<div class="tip"><strong>(Meerdere beoordelaars\?|Multiple assessors\?)<\/strong>[\s\S]*?<\/div>/, rest);
-    body = body.replace(/<h3>(De drie analyseniveaus|The three analysis levels)<\/h3>/, m => together + '\n      ' + m);
+    body = body.replace(/<h3>(Het overzicht|The overview)<\/h3>/, m => together + '\n      ' + m);
     body = body.replace(/<p><strong>(JSON importeren|Import JSON):<\/strong>[\s\S]*?<\/p>/, X.importJson);
     body = body.replace(/(<h3>(Data opslaan|Saving data)<\/h3>\s*<p>[\s\S]*?)(<\/p>)/, (m,a,b,c)=>a+X.storage+c);
     body = body.replace(/(<h3>Quick scan<\/h3>\s*<p>[\s\S]*?)(<\/p>)/, (m,a,c)=>a+X.quick+c);
@@ -4432,18 +4485,18 @@ document.addEventListener('mouseout', e => {
 // === CHANGELOG (tweetalig: Nederlands bij LANG 'nl', anders Engels) ===
 // Oude items zijn letterlijk overgenomen uit v0.8.4 (en) met een Nederlandse vertaling.
 const CHANGELOG = [
-  { version:'0.9.0', label:'', date:'2026-09-25', big:true,
+  { version:'0.9.0', label:'', date:'2026-09-26', big:true,
     intro:{
-      nl:'<strong>Dit is onze grootste update ooit.</strong> Sinds de eerste versie hebben we ongelooflijk veel feedback gekregen, van collega\'s uit onze eigen sector en van gebruikers uit heel andere sectoren: in gesprekken, per mail en in reviews. Dank jullie wel! Vrijwel alles hebben we kunnen verwerken in deze 0.9-update, met een compleet nieuw ontwerp en een flink aantal nieuwe mogelijkheden. Je bestaande assessments, wegingen en scores blijven precies zoals ze waren.',
-      en:'<strong>This is our biggest update ever.</strong> Since the first version, we have received an incredible amount of feedback, from colleagues in our own sector and from users in very different sectors: in conversations, by e-mail and in reviews. Thank you! We were able to process nearly all of it in this 0.9 update, with a completely new design and a whole set of new features. Your existing assessments, weights and scores stay exactly as they were.'
+      nl:'<strong>Dit is de grootste update tot nu toe.</strong> Sinds de eerste versie hebben we ongelooflijk veel feedback gekregen, van collega\'s uit onze eigen sector en van gebruikers uit heel andere sectoren: in gesprekken, per mail en in reviews. Dank jullie wel! Vrijwel alles hebben we kunnen verwerken in deze 0.9-update, met een compleet nieuw ontwerp en een flink aantal nieuwe mogelijkheden. Je bestaande assessments, wegingen en scores blijven precies zoals ze waren.',
+      en:'<strong>This is the biggest update so far.</strong> Since the first version, we have received an incredible amount of feedback, from colleagues in our own sector and from users in very different sectors: in conversations, by e-mail and in reviews. Thank you! We were able to process nearly all of it in this 0.9 update, with a completely new design and a whole set of new features. Your existing assessments, weights and scores stay exactly as they were.'
     },
     items:[
       { nl:'<strong>Dashboard:</strong> een nieuw overzicht met kerncijfers, een interactief autonomiekwadrant (bolgrootte = strategisch belang, kleur per organisatieonderdeel), filters, een sorteerbare tabel en overzichten per leverancier en per organisatieonderdeel. Beweeg over een bol voor een mini-radardiagram; je keuze voor initialen of nummers wordt onthouden. Met voorbeelddata van een fictieve universiteit verken je alles meteen, en verwijder je het daarna in één klik.',
         en:'<strong>Dashboard:</strong> a new overview with key figures, an interactive autonomy quadrant (bubble size = strategic importance, colour per organisational unit), filters, a sortable table and overviews per supplier and per organisational unit. Hover over a bubble for a mini radar chart; your choice of initials or numbers is remembered. Sample data of a fictitious university lets you explore everything right away, and removes again in one click.' },
       { nl:'<strong>Radardiagram per applicatie:</strong> een diagram van de acht dimensies met uitleg per dimensie, een scoremeter en snelle navigatie tussen de niveaus.',
         en:'<strong>Radar chart per application:</strong> a chart of the eight dimensions with an explanation per dimension, a score gauge and quick navigation between the levels.' },
-      { nl:'<strong>Profiel van je organisatie:</strong> via de nieuwe knop Profiel leg je in één profiel vast hoe jouw organisatie het DAAF gebruikt, met drie tabbladen: <em>Sectorteksten</em> (dimensie H en G2 voor jouw sector), <em>Dimensie H</em> (aan of uit) en <em>Weging</em> (één weging voor de hele organisatie; per applicatie kun je nog afwijken). Je begint met een sjabloon voor hoger onderwijs (standaard), funderend onderwijs, gemeenten, Rijk, provincies, waterschappen en uitvoeringsorganisaties (zoals UWV, DUO of Belastingdienst) of een generiek sjabloon. Met &ldquo;Teksten bekijken&rdquo; zie je vooraf de sectorteksten van een sjabloon, en ook later kun je die teksten in één keer overnemen. Profielen zijn te delen en reizen mee in elke JSON-export; een gedeeld profiel kan bij het importeren meteen het actieve profiel worden. De sjablonen buiten het hoger onderwijs zijn een eerste versie: feedback vanuit de sectoren is van harte welkom, zodat we ze samen kunnen verbeteren. Met dank aan Thomas Steenbergen (SIVON) voor zijn bijdrage aan het sjabloon voor het funderend onderwijs.',
-        en:'<strong>Your organisation\'s profile:</strong> with the new Profile button you set in one profile how your organisation uses the DAAF, with three tabs: <em>Sector texts</em> (dimension H and G2 for your sector), <em>Dimension H</em> (on or off) and <em>Weights</em> (one weighting for the whole organisation; per application you can still deviate). You start from a template for higher education (default), primary and secondary education, municipalities, central government, provinces, water authorities and executive agencies (such as tax or benefits agencies), or a generic template. With &ldquo;View texts&rdquo; you see the sector texts of a template beforehand, and you can also copy those texts later on in one go. Profiles can be shared and travel along in every JSON export; a shared profile can become the active profile straight away when imported. The templates outside higher education are a first version: feedback from the sectors is very welcome, so we can improve them together. Thanks to Thomas Steenbergen (SIVON) for his contribution to the template for primary and secondary education.' },
+      { nl:'<strong>Profiel van je organisatie:</strong> via de nieuwe knop Profiel leg je in één profiel vast hoe jouw organisatie het DAAF gebruikt, met drie tabbladen: <em>Sectorteksten</em> (dimensie H en G2 voor jouw sector), <em>Dimensie H</em> (aan of uit) en <em>Weging</em> (één weging voor de hele organisatie; per applicatie kun je nog afwijken). In het profiel kies je een sjabloon voor hoger onderwijs (standaard), funderend onderwijs, gemeenten, Rijk, provincies, waterschappen en uitvoeringsorganisaties (zoals UWV, DUO of Belastingdienst) of een generiek sjabloon. In de profieleditor zie je alle teksten van een sjabloon meteen als voorbeeld in de velden; pas bij Overnemen komen ze in je profiel. Zo kun je sjablonen ook later nog vergelijken en overnemen. Profielen zijn te delen en reizen mee in elke JSON-export; een gedeeld profiel kan bij het importeren meteen het actieve profiel worden. De sjablonen buiten het hoger onderwijs zijn een eerste versie: feedback vanuit de sectoren is van harte welkom, zodat we ze samen kunnen verbeteren. Met dank aan Thomas Steenbergen (SIVON) voor zijn bijdrage aan het sjabloon voor het funderend onderwijs.',
+        en:'<strong>Your organisation\'s profile:</strong> with the new Profile button you set in one profile how your organisation uses the DAAF, with three tabs: <em>Sector texts</em> (dimension H and G2 for your sector), <em>Dimension H</em> (on or off) and <em>Weights</em> (one weighting for the whole organisation; per application you can still deviate). In the profile you choose a template for higher education (default), primary and secondary education, municipalities, central government, provinces, water authorities and executive agencies (such as tax or benefits agencies), or a generic template. The profile editor shows all texts of a template straight away as a preview in the fields; only Copy adds them to your profile. This way you can also compare and copy templates later on. Profiles can be shared and travel along in every JSON export; a shared profile can become the active profile straight away when imported. The templates outside higher education are a first version: feedback from the sectors is very welcome, so we can improve them together. Thanks to Thomas Steenbergen (SIVON) for his contribution to the template for primary and secondary education.' },
       { nl:'<strong>Samen beoordelen:</strong> importeer meerdere JSON-bestanden tegelijk met een voorbeeld vooraf en herken nieuwere versies van hetzelfde assessment, zodat er geen dubbelingen ontstaan.',
         en:'<strong>Assessing together:</strong> import several JSON files at once with a preview, and recognise newer versions of the same assessment, so no duplicates arise.' },
       { nl:'<strong>Organisatieonderdeel en leverancier:</strong> twee nieuwe optionele velden met gedeelde keuzelijsten. Bij het samenvoegen van bestanden van collega\'s koppel je afwijkende schrijfwijzen (zoals &ldquo;ICT-dienst&rdquo; en &ldquo;ICT-diensten&rdquo;) aan één waarde, zodat het overzicht schoon blijft. Beide velden pas je ook direct in de tabel aan, voor één of voor meerdere applicaties tegelijk.',
@@ -4955,6 +5008,8 @@ function fieldOf(kind){ return kind==='org' ? 'organisatieonderdeel' : 'leveranc
 function listOf(kind){ const k=LIST_KEY[kind]; if (!Array.isArray(state.instellingen[k])) state.instellingen[k]=[]; return state.instellingen[k]; }
 function orgUnits(){ return listOf('org'); }
 function listValues(kind){ return listOf(kind).slice(); }
+// Label midden in een zin: eerste letter klein (Duitse zelfstandige naamwoorden en afkortingen zoals "ICT" blijven zoals ze zijn)
+function midCase(s){ s=String(s||''); if (LANG==='de' || s.length<2 || /[A-Z0-9]/.test(s[1])) return s; return s.charAt(0).toLowerCase()+s.slice(1); }
 function listLabel(kind){ return kind==='org' ? orgLabel() : tx('vendor'); }
 function allAppsIncTrash(){ return [...state.order.map(id=>state.apps[id]), ...state.prullenbak.map(e=>e.app)]; }
 function usageOf(kind, v){ const f=fieldOf(kind); return allAppsIncTrash().filter(a=>(a[f]||'').trim()===v).length; }
@@ -4990,7 +5045,7 @@ function setAppList(kind, id, sel){
 }
 function setAppOrg(id, sel){ setAppList('org', id, sel); }
 function promptNewVal(kind){
-  const name=(prompt(tx('listNewPrompt',{label:listLabel(kind).toLowerCase()}))||'').trim().slice(0,120); if (!name) return '';
+  const name=(prompt(tx('listNewPrompt',{label:midCase(listLabel(kind))}))||'').trim().slice(0,120); if (!name) return '';
   const exact=findExact(kind, name); if (exact) return exact;
   const sim=findSimilar(kind, name);
   if (sim && confirm(tx('listSimilarConfirm',{a:name,b:sim}))) return sim;
@@ -5405,7 +5460,7 @@ function renderOverview() {
   // Leveranciers en onderdelen
   h += '<div class="ov-grid two">';
   h += `<section class="card"><div class="card-head"><div><h3 class="merri">${icon('truck','h-ic')} ${esc(tx('vendorTitle'))}</h3></div><button class="icon-btn" title="${esc(tx('manageList'))}" onclick="openListManager('lev')">${icon('gear')}</button></div>${aggTable(counted, x=>(x.a.leverancier||'').trim(), tx('vendorEmpty'), 'lev')}</section>`;
-  h += `<section class="card"><div class="card-head"><div><h3 class="merri">${icon('building','h-ic')} ${esc(tx('perOrgTitle',{label:orgLabel()}))}</h3></div><button class="icon-btn" title="${esc(tx('manageList'))}" onclick="openListManager('org')">${icon('gear')}</button></div>${aggTable(counted, x=>(x.a.organisatieonderdeel||'').trim(), tx('orgEmpty',{label:orgLabel().toLowerCase()}), 'org')}</section>`;
+  h += `<section class="card"><div class="card-head"><div><h3 class="merri">${icon('building','h-ic')} ${esc(tx('perOrgTitle',{label:midCase(orgLabel())}))}</h3></div><button class="icon-btn" title="${esc(tx('manageList'))}" onclick="openListManager('org')">${icon('gear')}</button></div>${aggTable(counted, x=>(x.a.organisatieonderdeel||'').trim(), tx('orgEmpty',{label:midCase(orgLabel())}), 'org')}</section>`;
   h += '</div>';
 
   // Tabel
@@ -5429,7 +5484,7 @@ function renderOverview() {
     if (x.mode==='quick') tags.push(`<span class="tag">${esc(t('ui.assessModePickerQuickBtn'))}</span>`);
     h += `<tr><td class="chk"><input type="checkbox" class="row-check" value="${x.id}" onchange="updateBulkBar()" aria-label="${esc(a.name||unnamed())}"></td><td class="num">${x.num}</td>`;
     h += `<td class="app-cell"><div class="app-name" onclick="showView('${x.id}')" tabindex="0" onkeydown="if(event.key==='Enter')showView('${x.id}')">${esc(a.name)||esc(unnamed())}</div><div class="sub">${esc([a.appId,a.beoordelaar,a.datum].filter(Boolean).join(' · '))}</div>${tags.length?'<div class="tags">'+tags.join('')+'</div>':''}</td>`;
-    h += `<td class="txt"><button class="cell-edit" onclick="editCell('org','${x.id}',this)" title="${esc(tx('editCellTip',{label:orgLabel().toLowerCase()}))}">${a.organisatieonderdeel?`<span class="org-chip"><i style="background:${ocm[(a.organisatieonderdeel||'').trim()]||ocmAll[(a.organisatieonderdeel||'').trim()]||'#8A8A8A'}"></i>${esc(a.organisatieonderdeel)}</span>`:`<span class="cell-empty">${esc(tx('cellAdd'))}</span>`}${icon('chevron','ce-chev')}</button></td><td class="txt"><button class="cell-edit" onclick="editCell('lev','${x.id}',this)" title="${esc(tx('editCellTip',{label:tx('vendor').toLowerCase()}))}">${a.leverancier?`<span>${esc(a.leverancier)}</span>`:`<span class="cell-empty">${esc(tx('cellAdd'))}</span>`}${icon('chevron','ce-chev')}</button></td>`;
+    h += `<td class="txt"><button class="cell-edit" onclick="editCell('org','${x.id}',this)" title="${esc(tx('editCellTip',{label:midCase(orgLabel())}))}">${a.organisatieonderdeel?`<span class="org-chip"><i style="background:${ocm[(a.organisatieonderdeel||'').trim()]||ocmAll[(a.organisatieonderdeel||'').trim()]||'#8A8A8A'}"></i>${esc(a.organisatieonderdeel)}</span>`:`<span class="cell-empty">${esc(tx('cellAdd'))}</span>`}${icon('chevron','ce-chev')}</button></td><td class="txt"><button class="cell-edit" onclick="editCell('lev','${x.id}',this)" title="${esc(tx('editCellTip',{label:midCase(tx('vendor'))}))}">${a.leverancier?`<span>${esc(a.leverancier)}</span>`:`<span class="cell-empty">${esc(tx('cellAdd'))}</span>`}${icon('chevron','ce-chev')}</button></td>`;
     h += `<td class="prog-cell"><div class="prog"><i class="${pct===100?'full':''}" style="width:${pct}%"></i></div><span>${pct}%</span></td>`;
     h += `<td>${scorePill(x.r.score10)}</td><td>${quadPill(x.r.kwadrant)}</td>`;
     h += `<td class="nv r">${x.r.nivs.risico?x.r.nivs.risico.toFixed(2):'&ndash;'}</td><td class="nv m">${x.r.nivs.mitigatie?x.r.nivs.mitigatie.toFixed(2):'&ndash;'}</td><td class="nv b">${x.r.nivs.belang?x.r.nivs.belang.toFixed(2):'&ndash;'}</td>`;
@@ -5452,7 +5507,7 @@ function aggTable(list, keyFn, emptyMsg, kind){
   if(!ks.length) {
     const f=fieldOf(kind); const anyInData=state.order.some(id=>nz(state.apps[id][f]));
     if (anyInData) return emptyBlock('search', tx('emptyFilterTitle'), tx('emptyAggFilter'), []);
-    const lbl = kind==='lev' ? tx('vendor').toLowerCase() : orgLabel().toLowerCase();
+    const lbl = kind==='lev' ? midCase(tx('vendor')) : midCase(orgLabel());
     return emptyBlock(kind==='lev'?'truck':'building', tx(kind==='lev'?'emptyLevTitle':'emptyOrgTitle',{label:lbl}), tx(kind==='lev'?'emptyLevText':'emptyOrgText',{label:lbl}),
       list.length ? [[tx('emptyFillTable'), `fillInTable('${kind}')`, 'list', true], [tx(kind==='lev'?'emptyAddLev':'emptyAddOrg',{label:lbl}), `openListManager('${kind}')`, 'plus']] : []);
   }
@@ -5691,11 +5746,11 @@ function healthCard(rows){
   const inc=live.filter(x=>x.r.filled<x.r.total).length;
   if (inc) items.push({ic:'list', lvl:'warn', txt:tx('hIncomplete',{n:inc}), act:"ovf.sort='prog';ovf.dir=1;renderOverview();document.querySelector('.table-card').scrollIntoView({behavior:'smooth'})"});
   const noOrg=live.filter(x=>!nz(x.a.organisatieonderdeel)).length;
-  if (noOrg) items.push({ic:'building', lvl:'info', txt:tx('hNoOrg',{n:noOrg,label:orgLabel().toLowerCase()}), act:"ovf.sort='org';ovf.dir=1;renderOverview();document.querySelector('.table-card').scrollIntoView({behavior:'smooth'})"});
+  if (noOrg) items.push({ic:'building', lvl:'info', txt:tx('hNoOrg',{n:noOrg,label:midCase(orgLabel())}), act:"ovf.sort='org';ovf.dir=1;renderOverview();document.querySelector('.table-card').scrollIntoView({behavior:'smooth'})"});
   const noLev=live.filter(x=>!nz(x.a.leverancier)).length;
   if (noLev) items.push({ic:'truck', lvl:'info', txt:tx('hNoLev',{n:noLev}), act:"ovf.sort='lev';ovf.dir=1;renderOverview();document.querySelector('.table-card').scrollIntoView({behavior:'smooth'})"});
   for (const kind of ['org','lev']) { const vals=listValues(kind); let d=0; for (let i=0;i<vals.length;i++) for (let j=i+1;j<vals.length;j++) if (isSimilar(vals[i],vals[j])) d++;
-    if (d) items.push({ic:'alert', lvl:'warn', txt:tx('hDupes',{n:d,label:(kind==='org'?orgLabel():tx('vendor')).toLowerCase()}), act:`openListManager('${kind}')`}); }
+    if (d) items.push({ic:'alert', lvl:'warn', txt:tx('hDupes',{n:d,label:midCase(kind==='org'?orgLabel():tx('vendor'))}), act:`openListManager('${kind}')`}); }
   const pk=new Set(live.map(x=>profKey(x.a))); if (pk.size>1) items.push({ic:'layers', lvl:'warn', txt:tx('hProfiles',{n:pk.size}), act:'openProfiles()'});
   let h=`<section class="card health"><div class="card-head"><div><h3 class="merri">${esc(tx('healthTitle'))}</h3><p class="card-sub">${esc(tx('healthSub'))}</p></div></div>`;
   if (!items.length) h+=`<div class="health-ok">${icon('check')}<div><strong>${esc(tx('healthOk'))}</strong><span>${esc(tx('healthOkSub'))}</span></div></div>`;
@@ -5927,7 +5982,7 @@ function pfCard(p){
     const part=(tab,ic,title,sub)=>`<button class="pf-part" onclick="editProfile('${pid}','${tab}')"><span class="pf-part-ic">${icon(ic)}</span><span><strong>${esc(title)}</strong><small>${esc(sub)}</small></span>${icon('arrow','pf-go')}</button>`;
     h+='<div class="pf-parts">'+part('t','pencil',tx('tabTexts'),tx('pfPartTexts'))+part('h','layers',tx('tabH'),hOn(p)?tx('pfPartHOn'):tx('pfPartHOff'))+part('w','sliders',tx('tabWeights'),nW?tx('wAdj',{n:nW}):tx('pfPartWModel'))+'</div>';
   } else {
-    h+=`<div class="pf-locked">${icon('info')}<div><p>${esc(tx('pfStdLocked'))}</p><div class="pf-create"><span>${esc(tx('pfStartFrom'))}</span>${templateSelectHtml('pmTpl')}${tplPrevBtn('pmTpl')}<button class="btn primary" onclick="createOwnFromTemplate(document.getElementById('pmTpl').value)">${icon('plus')}<span>${esc(tx('pfCreate'))}</span></button></div>${tplPrevBox('pmTpl')}</div></div>`;
+    h+=`<div class="pf-locked">${icon('info')}<div><p>${esc(tx('pfStdLocked'))}</p><div class="pf-create"><button class="btn primary" onclick="newProfileFromTemplate('ho')">${icon('plus')}<span>${esc(tx('pfCreate'))}</span></button></div><p class="muted small pf-create-hint">${esc(tx('pfCreateHint'))}</p></div></div>`;
   }
   return h+'</section>';
 }
@@ -5951,7 +6006,7 @@ function renderProfileList(){
     }
     h+='</ul></details>';
   }
-  if (active) h+=`<div class="pm-new"><strong>${esc(tx('newProfile'))}</strong>${templateSelectHtml('pmTpl')}${tplPrevBtn('pmTpl')}<button class="btn" onclick="newProfileFromTemplate(document.getElementById('pmTpl').value)">${esc(tx('createProfile'))}</button><span class="muted small">${esc(tx('or'))}</span><button class="btn" onclick="importData()">${esc(tx('importProfile'))}</button></div>${tplPrevBox('pmTpl')}`;
+  if (active) h+=`<div class="pm-new"><strong>${esc(tx('newProfile'))}</strong><button class="btn" onclick="newProfileFromTemplate('ho')">${esc(tx('createProfile'))}</button><span class="muted small">${esc(tx('or'))}</span><button class="btn" onclick="importData()">${esc(tx('importProfile'))}</button></div><p class="muted small pf-create-hint">${esc(tx('pfCreateHint'))}</p>`;
   else h+=`<p class="muted small pf-import">${esc(tx('or'))} <button class="linkbtn" onclick="importData()">${esc(tx('importProfile'))}</button></p>`;
   h+=`<div class="tip">${tx('profilesShareHtml')}</div><p class="muted small">${esc(tx('templatesNote'))}</p>`;
   document.getElementById('profileBody').innerHTML=h;
@@ -5993,7 +6048,7 @@ function peIndFs(code,p){
 }
 let peTab='t';
 function openProfileEditor(p, isNew, tab){
-  peDraft=p; peIsNew=isNew; peTab=tab||'t'; if (!peDraft.wegingen) peDraft.wegingen={};
+  peDraft=p; peIsNew=isNew; peTab=tab||'t'; pePreviewKey=''; if (!peDraft.wegingen) peDraft.wegingen={};
   document.getElementById('profileTitle').textContent = isNew ? tx('newProfileTitle') : tx('editProfileTitle');
   const u = isNew ? {active:0,trash:0} : profileUsage(p.id);
   let h='';
@@ -6003,7 +6058,7 @@ function openProfileEditor(p, isNew, tab){
   const tabBtn=(k,ic,l)=>`<button class="pe-tab${peTab===k?' on':''}" data-tab="${k}" role="tab" aria-selected="${peTab===k}" onclick="peShowTab('${k}')">${icon(ic)}<span>${esc(l)}</span></button>`;
   h+=`<div class="pe-tabs" role="tablist">${tabBtn('t','pencil',tx('tabTexts'))}${tabBtn('h','layers',tx('tabH'))}${tabBtn('w','sliders',tx('tabWeights'))}</div>`;
   // Sectorteksten
-  h+=`<div class="pe-pane" data-pane="t"><p class="muted small pe-pane-intro">${esc(tx('pfTextsIntro'))}</p><div class="pe-tplbar">${icon('copy')}<div><strong>${esc(tx('pfTplBarTitle'))}</strong><small>${esc(tx('pfTplBarSub'))}</small><div class="pe-tplrow">${templateSelectHtml('peTpl')}${tplPrevBtn('peTpl')}<button class="btn sm" onclick="peApplyTemplate(document.getElementById('peTpl').value)">${esc(tx('pfTplApply'))}</button></div>${tplPrevBox('peTpl')}</div></div>`;
+  h+=`<div class="pe-pane" data-pane="t"><p class="muted small pe-pane-intro">${esc(tx('pfTextsIntro'))}</p><div class="pe-tplbar" id="peTplBar">${icon('copy')}<div><strong>${esc(tx(isNew?'pfTplBarTitleNew':'pfTplBarTitle'))}</strong><small>${esc(tx('pfTplBarSub'))}</small><div class="pe-tplrow"><select id="peTpl" onchange="pePreviewTemplate(this.value)"><option value="">${esc(tx('pfTplPick'))}</option>${Object.keys(PROFILE_TEMPLATES).map(k=>`<option value="${k}">${esc(tplLabel(k))}</option>`).join('')}</select></div><div class="pe-tplprev-bar" id="peTplPrevBar" hidden><span id="peTplPrevMsg"></span><span class="pe-tplprev-acts"><button class="btn primary sm" onclick="pePreviewApply()">${esc(tx('pfTplApply'))}</button><button class="btn sm" onclick="pePreviewEnd()">${esc(tx('pfTplBack'))}</button></span></div></div></div>`;
   h+=`<div id="pe-hblock" class="${p.hAan===false?'off':''}"><div class="pe-hoff-note">${esc(tx('pfTextsHOff'))}</div><fieldset class="pe-fs" id="pe-fs-dimH"><legend>${esc(tx('peDimH'))}</legend>`;
   h+=peField('dimH.naam', tx('peDimName'), p.dimH&&p.dimH.naam, (I18N[LANG]||I18N.nl).dims.H, 'input');
   h+=peField('dimH.omschrijving', tx('peDimDesc'), p.dimH&&p.dimH.omschrijving, t('ui.scoreRowDimHDesc'), 'textarea')+'</fieldset>';
@@ -6020,6 +6075,32 @@ function openProfileEditor(p, isNew, tab){
   peShowTab(peTab);
   document.getElementById('profileModal').classList.add('open');
 }
+// Live voorbeeld: bij het kiezen van een sjabloon tonen de velden hieronder meteen de teksten ervan (alleen-lezen).
+// Pas bij Overnemen komen ze in het formulier; Terug zet je eigen teksten terug. Opslaan tijdens een voorbeeld bewaart je eigen teksten.
+let pePreviewKey='';
+function peTextFields(){ const b=document.getElementById('profileBody'); return b ? [...b.querySelectorAll('.pe-pane[data-pane="t"] [data-path]')] : []; }
+function pePreviewTemplate(key){
+  if (!key) { pePreviewEnd(); return; }
+  const T=PROFILE_TEMPLATES[key]; if (!T) return;
+  const c=templateContent(key); const p={dimH:c.dimH, dimG:c.dimG, ind:c.ind};
+  const val=path=>{ const [a,b,cc,d]=path.split('.');
+    if (path==='dimH.naam') return dimName('H',p); if (path==='dimH.omschrijving') return dimDesc('H',p); if (path==='dimG.omschrijving') return dimDesc('G',p);
+    if (a==='ind') { const it=indText(b,p); return cc==='r' ? it.r[+d] : it[cc]; } return ''; };
+  for (const el of peTextFields()) { if (!pePreviewKey) el.dataset.own=el.value; el.value=val(el.dataset.path)||''; el.readOnly=true; if (el.tagName==='TEXTAREA') { el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; } }
+  pePreviewKey=key;
+  const sel=document.getElementById('peTpl'); if (sel && sel.value!==key) sel.value=key;
+  const pane=document.querySelector('#profileBody .pe-pane[data-pane="t"]'); if (pane) pane.classList.add('pe-previewing');
+  const bar=document.getElementById('peTplPrevBar'); if (bar) bar.hidden=false;
+  const msg=document.getElementById('peTplPrevMsg'); if (msg) msg.innerHTML=icon('eye')+'<span>'+esc(tx('pfTplPreviewing',{t:tplLabel(key)}))+'</span>';
+}
+function pePreviewEnd(){
+  for (const el of peTextFields()) { if (pePreviewKey && 'own' in el.dataset) el.value=el.dataset.own; delete el.dataset.own; el.readOnly=false; el.style.height=''; }
+  pePreviewKey='';
+  const pane=document.querySelector('#profileBody .pe-pane[data-pane="t"]'); if (pane) pane.classList.remove('pe-previewing');
+  const bar=document.getElementById('peTplPrevBar'); if (bar) bar.hidden=true;
+  const sel=document.getElementById('peTpl'); if (sel && sel.value) sel.value='';
+}
+function pePreviewApply(){ const key=pePreviewKey; pePreviewEnd(); if (key) peApplyTemplate(key); }
 // Teksten van een sectorsjabloon overnemen in het formulier (daarna nog aan te passen; opslaan is nodig)
 function peApplyTemplate(key){
   const T=PROFILE_TEMPLATES[key]; if (!T || !peDraft) return; const body=document.getElementById('profileBody');
@@ -6075,6 +6156,7 @@ function peStep(code, delta){
 function peResetWeights(){ if (!peDraft) return; peDraft.wegingen={}; const pane=document.querySelector('#profileBody .pe-pane[data-pane="w"]'); if (pane) pane.innerHTML=peWeightsHtml(); }
 function cancelProfileEditor(){ if (peAssignApp) { closeProfiles(); return; } renderProfileList(); }
 function saveProfileEditor(){
+  if (pePreviewKey) pePreviewEnd();
   const body=document.getElementById('profileBody');
   const get=path=>{ const el=body.querySelector(`[data-path="${path}"]`); return el?el.value.trim():''; };
   const naam=get('naam'); if(!naam){ alert(tx('peNameRequired')); return; }
@@ -6326,7 +6408,7 @@ function importCSVApps() {
         if (hasHeader) {
           const f = re => first.findIndex(c=>re.test(c));
           col = { appId:f(/(^|[^a-z])id\b|applicatie-id|application id/), name:first.findIndex(c=>/^(applicatie|applicatienaam|naam|name|app|application|application name)( \(.*\))?$/.test(c)),
-                  datum:f(/^(datum|date)/), who:f(/^(beoordelaar|assessor)/), org:first.findIndex(c=>/organisatieonderdeel|organisational unit|organizational unit|^afdeling|^department|^faculteit/.test(c) || c===orgLabel().toLowerCase()), lev:f(/^(leverancier|supplier|vendor)/) };
+                  datum:f(/^(datum|date)/), who:f(/^(beoordelaar|assessor)/), org:first.findIndex(c=>/organisatieonderdeel|organisational unit|organizational unit|^afdeling|^department|^faculteit/.test(c) || c===midCase(orgLabel())), lev:f(/^(leverancier|supplier|vendor)/) };
           if (col.name<0) col.name = first.findIndex((c,i)=>i!==col.appId);
         }
         let added = 0;
@@ -6379,7 +6461,7 @@ function setFieldFor(kind, ids, v, silent){
   const f=fieldOf(kind); const before=ids.map(id=>[id, state.apps[id][f]]);
   for (const id of ids) { if (v) state.apps[id][f]=v; else delete state.apps[id][f]; const view=document.getElementById('view-'+id); if (view && state.currentView!==id) view.remove(); }
   save(); refreshDatalists(); renderOverview();
-  if (!silent) showToast(esc(tx('bulkDone',{n:ids.length, label:listLabel(kind).toLowerCase(), v:v||tx('listNone')})), ()=>{ for (const [id,old] of before) { if (!state.apps[id]) continue; if (old) state.apps[id][f]=old; else delete state.apps[id][f]; } save(); renderOverview(); });
+  if (!silent) showToast(esc(tx('bulkDone',{n:ids.length, label:listLabel(kind), v:v||tx('listNone')})), ()=>{ for (const [id,old] of before) { if (!state.apps[id]) continue; if (old) state.apps[id][f]=old; else delete state.apps[id][f]; } save(); renderOverview(); });
 }
 function pickListValue(kind, anchor, current, onPick, title){
   openPicker(anchor, { items:listPickerItems(kind, true), value:current===undefined?undefined:(current||''), creatable:kind, title, minWidth:260,
