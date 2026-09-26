@@ -24,10 +24,11 @@ This tool implements the framework as an interactive, browser-based assessment. 
 - Quick scan (9 indicators) and full assessment (22 indicators)
 - Dashboard with autonomy quadrant, filters, supplier and organisational-unit overviews
 - Radar chart per application
+- Suggested improvements per application (which indicator raises the score most) and a portfolio view of where the most can be gained; suggestions, not advice
 - One profile for your organisation: sector texts (dimension H and G2), dimension H on or off, and organisation-wide weights, with per-application deviations
 - Import/export via JSON and CSV (summary and detailed, the detailed export includes the per-indicator remarks)
 - Multilingual: Dutch, English, German, French, Spanish, Italian and Danish (switch language from the toolbar)
-- Guided scoring with rubrics and glossary tooltips per indicator
+- Guided scoring with rubrics and glossary tooltips per indicator; the chosen rubric is shown below each indicator, and you can score with the keyboard (1 to 5)
 - Delete with undo, bulk delete and a trash
 - Export reminder to help prevent data loss
 - Changelog viewer for version history
@@ -71,7 +72,7 @@ A profile sets how your organisation uses the DAAF. It holds three things, each 
 - **Dimension H**: switch it off if it does not fit your organisation. Strategic importance then becomes the average of dimensions F and G.
 - **Weights**: one weighting for your whole organisation. Per application you can still deviate.
 
-The default profile is the DAAF as developed for higher education and is fixed, so scores stay comparable. When you create your own profile, you choose a sector template in the profile editor: higher education (the default), primary and secondary education, municipalities, central government, provinces, water authorities or executive agencies (such as tax or benefits agencies), or a generic template. Choosing a template immediately shows all its texts as a preview in the fields; nothing is copied until you click Copy, and nothing is stored until you click Save. The template is only the starting point. **The templates outside higher education are a first version.** Feedback and input from these sectors are very welcome, so we can improve them together. Templates are currently in Dutch. The other indicators, the scale and the calculation stay the same for everyone.
+The default profile is the DAAF as developed for higher education and is fixed, so scores stay comparable. When you create your own profile, you choose a sector template in the profile editor: higher education (the default), primary and secondary education, municipalities, central government, provinces, water authorities or executive agencies (such as tax or benefits agencies), or a generic template. Choosing a template immediately shows all its texts as a preview in the fields; nothing is copied until you click Copy, and nothing is stored until you click Save. The template is only the starting point. **The templates outside higher education are a first version.** Feedback and input from these sectors are very welcome, so we can improve them together. The templates were written in Dutch; the other languages are best-effort translations. The other indicators, the scale and the calculation stay the same for everyone.
 
 ## Dimensions
 
