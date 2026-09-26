@@ -1631,10 +1631,11 @@
   .ind-chosen:empty { display:none; }
   .ind-chosen .ch-n { flex-shrink:0; display:inline-flex; width:18px; height:18px; border-radius:5px; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; background:var(--surface-3); color:var(--ink); }
   /* rubriek bij aanwijzen van een scoreknop (alleen met muis) */
-  @media (hover:hover) and (pointer:fine) {
-    .sbar-opt[data-rub] { position:relative; }
-    .sbar-opt[data-rub]:not([data-rub=""]):hover::after { content:attr(data-rub); position:absolute; right:-6px; top:calc(100% + 9px); width:300px; white-space:normal; text-align:left; font-size:0.76rem; font-weight:500; line-height:1.45; letter-spacing:0; background:var(--ink); color:var(--surface); padding:0.55rem 0.7rem; border-radius:10px; box-shadow:var(--shadow-lg); z-index:30; pointer-events:none; }
-  }
+  /* als zwevend element (position:fixed), zodat hij nooit wordt afgesneden door een kaart of het einde van een blok */
+  .rub-tip { position:fixed; z-index:9000; width:300px; max-width:calc(100vw - 16px); font-size:0.76rem; font-weight:500; line-height:1.45; background:var(--ink); color:var(--surface); padding:0.55rem 0.7rem; border-radius:10px; box-shadow:var(--shadow-lg); pointer-events:none; opacity:0; transition:opacity .12s; }
+  .rub-tip.on { opacity:1; }
+  .rub-tip b { margin-right:0.35rem; }
+  .has-rem .ic { width:13px; height:13px; }
   /* weging alleen tonen als die afwijkt van het model */
   .wgt-val.at-model { visibility:hidden; }
   .dim-inds:not(.w-any) .ind-colheader .ch-wgt { visibility:hidden; }
@@ -1741,6 +1742,24 @@
   .pf-more { background:transparent; color:var(--text-3); border-style:dashed; }
   .pf-app[hidden] { display:none; }
   .pf-card .lv-code { flex-shrink:0; min-width:34px; }
+  /* 1.0.1: top 3 per indicator en volledige lijst */
+  .pf-apps-h { font-size:0.66rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3); margin-top:0.2rem; }
+  .pf-apps { flex-direction:column; flex-wrap:nowrap; }
+  .pf-app { display:flex; align-items:center; justify-content:space-between; gap:0.6rem; width:100%; border-radius:9px; padding:0.3rem 0.6rem; text-align:left; }
+  .pf-app span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pf-app b { color:var(--good); font-size:0.74rem; flex-shrink:0; }
+  .pf-all { align-self:flex-start; margin-top:auto; display:inline-flex; align-items:center; gap:0.35rem; }
+  .pf-all .ic { width:14px; height:14px; }
+  .pf-list { width:100%; border-collapse:collapse; font-size:0.82rem; }
+  .pf-list th { font-size:0.66rem; text-transform:uppercase; letter-spacing:.05em; padding:0.4rem 0.5rem; text-align:left; }
+  .pf-list th.c, .pf-list td.c { text-align:center; }
+  .pf-list td { padding:0.5rem; vertical-align:middle; }
+  .pf-list td small { display:block; color:var(--text-3); font-size:0.74rem; }
+  .pf-list tr.clk { cursor:pointer; } .pf-list tr.clk:hover td { background:var(--hover); }
+  .pf-list .nowrap { white-space:nowrap; }
+  .pf-list .lv-sc { vertical-align:middle; }
+  .pf-gain { color:var(--good); }
+  .pf-kw { margin-top:0.25rem; }
 
 </style>
 </head>
@@ -2171,14 +2190,19 @@ const UI_X = {
 "pfFixed": "vast",
 "pfH": "Dimensie H: {v}",
 "pfHExplain": "Zet dimensie H uit als die niet past bij je organisatie, bijvoorbeeld buiten het onderwijs of in een bedrijf. Ingevulde H-scores blijven bewaard.",
+"pfLeverAll": "Bekijk alle {n}",
 "pfLeverAppTip": "Open {name} bij {code}",
 "pfLeverAvgD": "gemiddeld +{d} op de score",
+"pfLeverGain": "Winst",
+"pfLeverListSub": "{k} van de {n} {n|applicatie|applicaties} in {kri} of {aan}, gesorteerd op winst. Klik op een applicatie om haar bij deze indicator te openen. Het zijn suggesties, geen advies.",
 "pfLeverMore": "+{n} meer",
+"pfLeverNew": "Wordt",
 "pfLeverNone": "Er staan geen applicaties in {kri} of {aan}.",
 "pfLeverOf": "{k} van {n}",
 "pfLeverOfLbl": "applicaties",
 "pfLeverSub": "Suggesties voor {n|de applicatie|de {n} applicaties} in {kri} of {aan}: welke indicatoren komen het vaakst terug in {n|haar|hun} top 3 van mogelijke verbeteringen?",
 "pfLeverTitle": "Waar valt het meeste te winnen?",
+"pfLeverTopApps": "Meeste winst bij",
 "pfOthers": "Andere profielen ({n})",
 "pfPartHOff": "Staat uit",
 "pfPartHOn": "Telt mee in de berekening",
@@ -2515,14 +2539,19 @@ const UI_X = {
 "pfFixed": "fixed",
 "pfH": "Dimension H: {v}",
 "pfHExplain": "Switch dimension H off if it does not fit your organisation, for example outside education or in a company. Entered H scores are kept.",
+"pfLeverAll": "View all {n}",
 "pfLeverAppTip": "Open {name} at {code}",
 "pfLeverAvgD": "on average +{d} on the score",
+"pfLeverGain": "Gain",
+"pfLeverListSub": "{k} of the {n} {n|application|applications} in {kri} or {aan}, sorted by gain. Click an application to open it at this indicator. These are suggestions, not advice.",
 "pfLeverMore": "+{n} more",
+"pfLeverNew": "Becomes",
 "pfLeverNone": "There are no applications in {kri} or {aan}.",
 "pfLeverOf": "{k} of {n}",
 "pfLeverOfLbl": "applications",
 "pfLeverSub": "Suggestions for {n|the application|the {n} applications} in {kri} or {aan}: which indicators appear most often in {n|its|their} top 3 of possible improvements?",
 "pfLeverTitle": "Where is the most to gain?",
+"pfLeverTopApps": "Most to gain at",
 "pfOthers": "Other profiles ({n})",
 "pfPartHOff": "Switched off",
 "pfPartHOn": "Counts in the calculation",
@@ -2859,14 +2888,19 @@ const UI_X = {
 "pfFixed": "festgelegt",
 "pfH": "Dimension H: {v}",
 "pfHExplain": "Schalten Sie Dimension H aus, wenn sie nicht zu Ihrer Organisation passt, zum Beispiel außerhalb des Bildungswesens oder in einem Unternehmen. Eingegebene H-Werte bleiben erhalten.",
+"pfLeverAll": "Alle {n} ansehen",
 "pfLeverAppTip": "{name} bei {code} öffnen",
 "pfLeverAvgD": "durchschnittlich +{d} beim Score",
+"pfLeverGain": "Gewinn",
+"pfLeverListSub": "{k} der {n} {n|Anwendung|Anwendungen} in {kri} oder {aan}, nach Gewinn sortiert. Klicken Sie auf eine Anwendung, um sie bei diesem Indikator zu öffnen. Es sind Vorschläge, keine Empfehlungen.",
 "pfLeverMore": "+{n} weitere",
+"pfLeverNew": "Wird",
 "pfLeverNone": "Es gibt keine Anwendungen in {kri} oder {aan}.",
 "pfLeverOf": "{k} von {n}",
 "pfLeverOfLbl": "Anwendungen",
 "pfLeverSub": "Vorschläge für {n|die Anwendung|die {n} Anwendungen} in {kri} oder {aan}: Welche Indikatoren kommen am häufigsten in ihren Top 3 der möglichen Verbesserungen vor?",
 "pfLeverTitle": "Wo ist am meisten zu gewinnen?",
+"pfLeverTopApps": "Größter Gewinn bei",
 "pfOthers": "Andere Profile ({n})",
 "pfPartHOff": "Ausgeschaltet",
 "pfPartHOn": "Zählt in der Berechnung mit",
@@ -3203,14 +3237,19 @@ const UI_X = {
 "pfFixed": "figé",
 "pfH": "Dimension H : {v}",
 "pfHExplain": "Désactivez la dimension H si elle ne convient pas à votre organisation, par exemple hors de l'enseignement ou dans une entreprise. Les scores H saisis sont conservés.",
+"pfLeverAll": "Voir les {n}",
 "pfLeverAppTip": "Ouvrir {name} à {code}",
 "pfLeverAvgD": "en moyenne +{d} sur le score",
+"pfLeverGain": "Gain",
+"pfLeverListSub": "{k} des {n} {n|application|applications} en {kri} ou {aan}, triées par gain. Cliquez sur une application pour l’ouvrir à cet indicateur. Ce sont des suggestions, pas des conseils.",
 "pfLeverMore": "+{n} de plus",
+"pfLeverNew": "Devient",
 "pfLeverNone": "Aucune application en {kri} ou {aan}.",
 "pfLeverOf": "{k} sur {n}",
 "pfLeverOfLbl": "applications",
 "pfLeverSub": "Suggestions pour {n|l’application|les {n} applications} en {kri} ou {aan} : quels indicateurs reviennent le plus souvent dans {n|son|leur} top 3 des améliorations possibles ?",
 "pfLeverTitle": "Où y a-t-il le plus à gagner ?",
+"pfLeverTopApps": "Plus fort gain pour",
 "pfOthers": "Autres profils ({n})",
 "pfPartHOff": "Désactivée",
 "pfPartHOn": "Compte dans le calcul",
@@ -3547,14 +3586,19 @@ const UI_X = {
 "pfFixed": "fijo",
 "pfH": "Dimensión H: {v}",
 "pfHExplain": "Desactiva la dimensión H si no encaja con tu organización, por ejemplo fuera del ámbito educativo o en una empresa. Las puntuaciones de H introducidas se conservan.",
+"pfLeverAll": "Ver las {n}",
 "pfLeverAppTip": "Abrir {name} en {code}",
 "pfLeverAvgD": "de media +{d} en la puntuación",
+"pfLeverGain": "Ganancia",
+"pfLeverListSub": "{k} de las {n} {n|aplicación|aplicaciones} en {kri} o {aan}, ordenadas por ganancia. Haz clic en una aplicación para abrirla en este indicador. Son sugerencias, no consejos.",
 "pfLeverMore": "+{n} más",
+"pfLeverNew": "Pasa a",
 "pfLeverNone": "No hay aplicaciones en {kri} o {aan}.",
 "pfLeverOf": "{k} de {n}",
 "pfLeverOfLbl": "aplicaciones",
 "pfLeverSub": "Sugerencias para {n|la aplicación|las {n} aplicaciones} en {kri} o {aan}: ¿qué indicadores aparecen con más frecuencia en su top 3 de mejoras posibles?",
 "pfLeverTitle": "¿Dónde hay más que ganar?",
+"pfLeverTopApps": "Mayor ganancia en",
 "pfOthers": "Otros perfiles ({n})",
 "pfPartHOff": "Desactivada",
 "pfPartHOn": "Cuenta en el cálculo",
@@ -3891,14 +3935,19 @@ const UI_X = {
 "pfFixed": "fisso",
 "pfH": "Dimensione H: {v}",
 "pfHExplain": "Disattiva la dimensione H se non è adatta alla tua organizzazione, ad esempio al di fuori dell'istruzione o in un'azienda. I punteggi H inseriti vengono conservati.",
+"pfLeverAll": "Vedi tutte le {n}",
 "pfLeverAppTip": "Apri {name} su {code}",
 "pfLeverAvgD": "in media +{d} sul punteggio",
+"pfLeverGain": "Guadagno",
+"pfLeverListSub": "{k} delle {n} {n|applicazione|applicazioni} in {kri} o {aan}, ordinate per guadagno. Fai clic su un’applicazione per aprirla su questo indicatore. Sono suggerimenti, non consigli.",
 "pfLeverMore": "+{n} altre",
+"pfLeverNew": "Diventa",
 "pfLeverNone": "Non ci sono applicazioni in {kri} o {aan}.",
 "pfLeverOf": "{k} su {n}",
 "pfLeverOfLbl": "applicazioni",
 "pfLeverSub": "Suggerimenti per {n|l’applicazione|le {n} applicazioni} in {kri} o {aan}: quali indicatori compaiono più spesso nella {n|sua|loro} top 3 dei miglioramenti possibili?",
 "pfLeverTitle": "Dove c’è più da guadagnare?",
+"pfLeverTopApps": "Maggior guadagno per",
 "pfOthers": "Altri profili ({n})",
 "pfPartHOff": "Disattivata",
 "pfPartHOn": "Conta nel calcolo",
@@ -4235,14 +4284,19 @@ const UI_X = {
 "pfFixed": "låst",
 "pfH": "Dimension H: {v}",
 "pfHExplain": "Slå dimension H fra, hvis den ikke passer til din organisation, for eksempel uden for uddannelsessektoren eller i en virksomhed. Indtastede H-scorer bevares.",
+"pfLeverAll": "Se alle {n}",
 "pfLeverAppTip": "Åbn {name} ved {code}",
 "pfLeverAvgD": "i gennemsnit +{d} på scoren",
+"pfLeverGain": "Gevinst",
+"pfLeverListSub": "{k} af de {n} {n|applikation|applikationer} i {kri} eller {aan}, sorteret efter gevinst. Klik på en applikation for at åbne den ved denne indikator. Det er forslag, ikke råd.",
 "pfLeverMore": "+{n} flere",
+"pfLeverNew": "Bliver",
 "pfLeverNone": "Der er ingen applikationer i {kri} eller {aan}.",
 "pfLeverOf": "{k} af {n}",
 "pfLeverOfLbl": "applikationer",
 "pfLeverSub": "Forslag til {n|applikationen|de {n} applikationer} i {kri} eller {aan}: hvilke indikatorer går oftest igen i {n|dens|deres} top 3 af mulige forbedringer?",
 "pfLeverTitle": "Hvor er der mest at vinde?",
+"pfLeverTopApps": "Størst gevinst for",
 "pfOthers": "Andre profiler ({n})",
 "pfPartHOff": "Slået fra",
 "pfPartHOn": "Tæller med i beregningen",
@@ -4867,12 +4921,12 @@ const CHANGELOG = [
     items:[
       { nl:'<strong>Mogelijke verbeteringen:</strong> per applicatie drie suggesties: welke indicator verhoogt de autonomiescore het meest als hij beter scoort, wat de score dan wordt en of de applicatie daarmee van kwadrant wisselt. Klik op een suggestie om naar de indicator te gaan. Het zijn suggesties op basis van de berekening, geen advies; de berekening houdt rekening met de weging van je profiel.',
         en:'<strong>Possible improvements:</strong> three suggestions per application: which indicator raises the autonomy score the most if it scores better, what the score becomes and whether the application moves to another quadrant. Click a suggestion to go to the indicator. These are suggestions based on the calculation, not advice; the calculation takes your profile\'s weights into account.' },
-      { nl:'<strong>Waar valt het meeste te winnen?</strong> In het overzicht zie je welke verbeteringen het vaakst terugkomen bij de applicaties in Kritiek en Aandachtspunt, en bij welke applicaties. Met de filters bekijk je dit per leverancier of organisatieonderdeel.',
-        en:'<strong>Where is the most to gain?</strong> The overview shows which improvements appear most often for the applications in Critical and Attention, and for which applications. Use the filters to view this per supplier or organisational unit.' },
+      { nl:'<strong>Waar valt het meeste te winnen?</strong> In het overzicht zie je welke verbeteringen het vaakst terugkomen bij de applicaties in Kritiek en Aandachtspunt, met per indicator de drie applicaties met de meeste winst. Met &ldquo;Bekijk alle&rdquo; open je een lijst met alle applicaties, gesorteerd op winst. Met de filters bekijk je dit per leverancier of organisatieonderdeel.',
+        en:'<strong>Where is the most to gain?</strong> The overview shows which improvements appear most often for the applications in Critical and Attention, with the three applications with the most to gain per indicator. &ldquo;View all&rdquo; opens a list of all applications, sorted by gain. Use the filters to view this per supplier or organisational unit.' },
       { nl:'<strong>Sneller scoren:</strong> onder elke indicator staat de tekst van de gekozen score, bij het aanwijzen van een scoreknop zie je de rubriek, en je kunt scoren met het toetsenbord (1 tot 5, daarna ga je vanzelf naar de volgende). Een vaste balk houdt naam, voortgang per niveau, score en kwadrant in beeld.',
         en:'<strong>Faster scoring:</strong> the text of the chosen score appears below each indicator, pointing at a score button shows its rubric, and you can score with the keyboard (1 to 5, then you move to the next one automatically). A fixed bar keeps the name, progress per level, score and quadrant in view.' },
-      { nl:'<strong>Rustiger scherm:</strong> de kolom Weging verschijnt alleen waar een weging afwijkt van het DAAF-model, en een nieuwe applicatie begint met één regel in plaats van lege scorekaarten.',
-        en:'<strong>Calmer screen:</strong> the Weight column only appears where a weight differs from the DAAF model, and a new application starts with a single line instead of empty score cards.' },
+      { nl:'<strong>Rustiger scherm:</strong> de kolom Weging verschijnt alleen waar een weging afwijkt van het DAAF-model, een nieuwe applicatie begint met één regel in plaats van lege scorekaarten, en een indicator met een opmerking herken je aan een tekstballonnetje.',
+        en:'<strong>Calmer screen:</strong> the Weight column only appears where a weight differs from the DAAF model, a new application starts with a single line instead of empty score cards, and an indicator with a remark shows a speech bubble.' },
       { nl:'<strong>Overzicht:</strong> de kerncijfers staan in één rij, met een verdeelbalk over de kwadranten waarop je kunt klikken om te filteren. De overzichten per leverancier en organisatieonderdeel zijn beter uitgelijnd en hebben een knop Toon alle.',
         en:'<strong>Overview:</strong> the key figures are in a single row, with a distribution bar across the quadrants that you can click to filter. The overviews per supplier and organisational unit are better aligned and have a Show all button.' },
       { nl:'<strong>Radardiagram:</strong> wijs een dimensie aan voor uitleg, de score en de indicatoren eronder; klik om ernaartoe te gaan.',
@@ -5567,6 +5621,7 @@ const ICONS = {
   upload:'<path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
   download:'<path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
   eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/>',
+  note:'<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-8.5L6.5 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="M8 9.5h8M8 12.5h5"/>',
   layers:'<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
   sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
   clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
@@ -6060,7 +6115,7 @@ function renderAppView(id) {
         const scored = app.scores[ind.code]!==undefined;
         h += `<div class="ind-row${scored?' scored':''}" data-code="${ind.code}" data-quick="${isQuick?1:0}" data-app="${id}" tabindex="0" onclick="indRowClick(event,'${id}','${ind.code}')">`;
         h += `<span class="ind-code${custom?' custom':''}">${ind.code}</span>`;
-        h += `<div class="ind-info"><div class="ind-title">${esc(it.title)}${ind.opt?' <span class="opt">(opt.)</span>':''}${ipen}${(app.remarks||{})[ind.code]?` <span class="has-rem" title="${esc(tx('hasRemark'))}">${icon('pencil')}</span>`:''}</div><div class="ind-q">${esc(it.q)}</div><div class="ind-chosen" id="chosen-${id}-${ind.code}" aria-live="polite"></div></div>`;
+        h += `<div class="ind-info"><div class="ind-title">${esc(it.title)}${ind.opt?' <span class="opt">(opt.)</span>':''}${ipen}${(app.remarks||{})[ind.code]?` <span class="has-rem" title="${esc(tx('hasRemark'))}" aria-label="${esc(tx('hasRemark'))}">${icon('note')}</span>`:''}</div><div class="ind-q">${esc(it.q)}</div><div class="ind-chosen" id="chosen-${id}-${ind.code}" aria-live="polite"></div></div>`;
         const curW = effW(app, ind, p);
         const wModified = !!app.weights[ind.code] && app.weights[ind.code]!==baseW(p, ind);
         h += `<span class="wgt-val${wModified?' modified':''}${curW===ind.w?' at-model':''}" id="wv-${id}-${ind.code}" title="${esc(tx('wgtTip',{w:curW,m:ind.w}))}">${curW}</span>`;
@@ -6227,25 +6282,59 @@ function goToIndicator(id, code){
   row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
 }
 // Portefeuille: welke indicatoren zijn het vaakst de grootste hefboom (top 3 per applicatie) bij Kritiek en Aandachtspunt?
+// Per indicator de drie applicaties met de meeste winst; "Bekijk alle" opent een lijst die ook bij honderden applicaties overzichtelijk blijft
+let pfLeverData={};
 function portfolioLeverCard(list){
   const act=list.filter(x=>x.r.kwadrant==='kri'||x.r.kwadrant==='aan'); const n=act.length; const Q={kri:quadLabel('kri'),aan:quadLabel('aan')};
   let h=`<section class="card pf-lever-card"><div class="card-head"><div><h3 class="merri">${icon('target','h-ic')} ${esc(tx('pfLeverTitle'))}</h3><p class="card-sub">${esc(n?tx('pfLeverSub',{n,...Q}):tx('pfLeverNone',Q))}</p></div></div>`;
+  pfLeverData={};
   if (!n) return h+'</section>';
   const agg={};
-  for (const x of act) for (const l of leverList(x.a, x.mode, x.p, x.r).slice(0,3)) { const g=agg[l.ind.code]=agg[l.ind.code]||{ind:l.ind,k:0,sum:0,apps:[]}; g.k++; g.sum+=l.d; g.apps.push(x); }
+  for (const x of act) for (const l of leverList(x.a, x.mode, x.p, x.r).slice(0,3)) { const g=agg[l.ind.code]=agg[l.ind.code]||{ind:l.ind,k:0,sum:0,rows:[]}; g.k++; g.sum+=l.d; g.rows.push({x, l}); }
   const top=Object.values(agg).sort((a,b)=>b.k-a.k || b.sum-a.sum).slice(0,4);
   if (!top.length) return h+'</section>';
   h+='<div class="pf-grid">';
   for (const g of top) {
-    const code=g.ind.code, ttl=indText(code, g.apps[0].p).title, show=4;
-    const appBtn=x=>`<button class="pf-app" onclick="event.stopPropagation();showView('${x.id}');setTimeout(()=>goToIndicator('${x.id}','${code}'),350)" title="${esc(tx('pfLeverAppTip',{name:x.a.name||unnamed(),code}))}">${esc(x.a.name||unnamed())}</button>`;
+    const code=g.ind.code, ttl=indText(code, g.rows[0].x.p).title;
+    g.rows.sort((a,b)=>b.l.d-a.l.d || (a.x.a.name||'').localeCompare(b.x.a.name||''));
+    pfLeverData[code]={g, n, ttl};
+    const chips=g.rows.slice(0,3).map(({x,l})=>`<button class="pf-app" onclick="event.stopPropagation();openAppAtIndicator('${x.id}','${code}')" title="${esc(tx('pfLeverAppTip',{name:x.a.name||unnamed(),code}))}"><span>${esc(x.a.name||unnamed())}</span><b>+${l.d.toFixed(1)}</b></button>`).join('');
     h+=`<div class="pf-card"><div class="lv-top"><span class="lv-code">${code}</span><strong>${esc(ttl)}</strong></div>`
       +`<div class="pf-count"><b>${esc(tx('pfLeverOf',{k:g.k,n}))}</b><span>${esc(tx('pfLeverOfLbl'))}</span><em>${esc(tx('pfLeverAvgD',{d:(g.sum/g.k).toFixed(1)}))}</em></div>`
       +`<div class="pf-bar"><i style="width:${Math.round(g.k/n*100)}%"></i></div>`
-      +`<div class="pf-apps">${g.apps.slice(0,show).map(appBtn).join('')}${g.apps.length>show?`<button class="pf-more" onclick="this.parentNode.querySelectorAll('.pf-app[hidden]').forEach(b=>b.hidden=false);this.remove()">${esc(tx('pfLeverMore',{n:g.apps.length-show}))}</button>${g.apps.slice(show).map(x=>appBtn(x).replace('<button class="pf-app"','<button class="pf-app" hidden')).join('')}`:''}</div></div>`;
+      +`<div class="pf-apps-h">${esc(tx('pfLeverTopApps'))}</div><div class="pf-apps">${chips}</div>`
+      +(g.k>3?`<button class="btn sm pf-all" onclick="openPfLeverList('${code}')">${icon('list')}<span>${esc(tx('pfLeverAll',{n:g.k}))}</span></button>`:'')+`</div>`;
   }
   return h+'</div></section>';
 }
+function openAppAtIndicator(id, code){ closeGeneric(); showView(id); setTimeout(()=>goToIndicator(id, code), 350); }
+function openPfLeverList(code){
+  const D=pfLeverData[code]; if (!D) return; const {g,n,ttl}=D; const dirOf=l=>l.ind.niv===2?'asc':'desc';
+  let h=`<p class="muted small">${esc(tx('pfLeverListSub',{k:g.k,n,kri:quadLabel('kri'),aan:quadLabel('aan')}))}</p><div class="tbl-scroll"><table class="pm-tbl pf-list"><thead><tr><th>${esc(t('ui.overviewTableHeaderApp'))}</th><th class="c">${esc(tx('leverNow'))}</th><th class="c">${esc(t('ui.levelRowHeaderColScore'))}</th><th class="c">${esc(tx('pfLeverGain'))}</th><th class="c">${esc(tx('pfLeverNew'))}</th></tr></thead><tbody>`;
+  for (const {x,l} of g.rows) {
+    const sub=[x.a.organisatieonderdeel, x.a.leverancier, x.a.beoordelaar].filter(Boolean).join(' · ');
+    h+=`<tr class="clk" onclick="openAppAtIndicator('${x.id}','${code}')"><td><strong>${esc(x.a.name||unnamed())}</strong>${sub?`<small>${esc(sub)}</small>`:''}</td><td class="c">${scorePill(x.r.score10)}</td><td class="c nowrap"><i class="lv-sc ${dirOf(l)}-${l.cur} from">${l.cur}</i> &rarr; <i class="lv-sc ${dirOf(l)}-${l.better} to">${l.better}</i></td><td class="c"><b class="pf-gain">+${l.d.toFixed(1)}</b></td><td class="c">${scorePill(l.s2)}${l.kw2 && l.kw2!==x.r.kwadrant?`<div class="pf-kw">${quadPill(l.kw2)}</div>`:''}</td></tr>`;
+  }
+  h+='</tbody></table></div>';
+  openGeneric(`${code} ${ttl}`, h, true);
+}
+
+// === SCOREN: RUBRIEK BIJ AANWIJZEN ===
+// Zwevende tooltip op het scherm (niet binnen de kaart), onder de knop of erboven als er onderaan geen ruimte is.
+(function rubTips(){
+  if (!(window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
+  let el=null; const tip=()=>{ if (!el) { el=document.createElement('div'); el.className='rub-tip'; el.setAttribute('role','tooltip'); document.body.appendChild(el); } return el; };
+  const hide=()=>{ if (el) el.classList.remove('on'); };
+  document.addEventListener('mouseover', e=>{
+    const b=e.target.closest && e.target.closest('.sbar-opt[data-rub]'); if (!b || !b.dataset.rub) { hide(); return; }
+    const t=tip(); t.innerHTML='<b>'+esc(b.textContent.trim())+'</b>'+esc(b.dataset.rub);
+    const r=b.getBoundingClientRect(); t.style.left='0px'; t.style.top='0px'; t.classList.add('on');
+    const w=t.offsetWidth, h=t.offsetHeight; let left=Math.min(r.right+6-w, innerWidth-w-8); left=Math.max(8,left);
+    let top=r.bottom+9; if (top+h>innerHeight-8) top=r.top-h-9;
+    t.style.left=left+'px'; t.style.top=top+'px';
+  });
+  window.addEventListener('scroll', hide, {passive:true});
+})();
 
 // === SCOREN: VASTE BALK EN TOETSENBORD ===
 // De balk verschijnt zodra de scorekaarten uit beeld zijn en vervangt dan de niveaurij (die zit in de balk, met voortgang).
@@ -7046,9 +7135,11 @@ function showChangelog() {
   ov.onclick = function(e) { if (e.target === ov) closeChangelog(); };
   const lastSeen = lsGet(KEY_LAST_SEEN) || '0.0.0';
   let html = '<div class="wn-modal"><button class="wn-close" onclick="closeChangelog()">&times;</button><h2>'+esc(t('ui.changelogModalTitle'))+'</h2>';
+  // De grote melding van de laatste grote update staat altijd bovenaan, ook als daarna nog kleine updates volgen
+  const hero = CHANGELOG.find(e=>e.big && e.intro);
+  if (hero) html += '<div class="cl-hero"><div class="cl-hero-tag">'+esc(tx('clBigTag',{v:hero.version.replace(/\.0$/,'')}))+'</div><p>' + clText(hero.intro) + '</p></div>';
   for (const entry of CHANGELOG) {
     const isNew = cmpVer(entry.version, lastSeen) > 0;
-    if (entry.big && entry.intro) html += '<div class="cl-hero"><div class="cl-hero-tag">'+esc(tx('clBigTag',{v:entry.version.replace(/\.0$/,'')}))+'</div><p>' + clText(entry.intro) + '</p></div>';
     html += '<div class="cl-version'+(entry.big?' big':'')+'"><h3>v' + entry.version + (entry.label?' '+entry.label:'') + (isNew ? '<span class="cl-new-badge">'+esc(t('ui.changelogNewBadge'))+'</span>' : '') + '</h3><div class="cl-date">' + entry.date + '</div><ul>';
     for (const item of entry.items) html += '<li>' + clText(item) + '</li>';
     html += '</ul></div>';
