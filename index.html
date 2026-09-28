@@ -1760,6 +1760,42 @@
   .pf-list .lv-sc { vertical-align:middle; }
   .pf-gain { color:var(--good); }
   .pf-kw { margin-top:0.25rem; }
+/* Rapport: alleen zichtbaar bij afdrukken via de knop Rapport */
+#reportView { display:none; }
+@media print {
+  body.report-mode > *:not(#reportView) { display:none !important; }
+  body.report-mode #reportView { display:block; color:#1a1a18; font-size:10.5pt; }
+  @page { size:A4; margin:14mm; }
+  #reportView h1 { font-family:Merriweather,Georgia,serif; font-size:18pt; margin:2px 0 4px; }
+  #reportView h2 { font-family:Merriweather,Georgia,serif; font-size:12pt; margin:0 0 6px; }
+  .rp-head { border-bottom:3px solid #FFCD00; padding-bottom:8px; margin-bottom:10px; }
+  .rp-head p { margin:0; color:#555; }
+  .rp-brand { display:inline-block; background:#000; color:#FFCD00; font-weight:700; padding:1px 8px; letter-spacing:.05em; }
+  .rp-kpis { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin:8px 0; }
+  .rp-kpis > div { border:1px solid #ddd; border-radius:6px; padding:6px 8px; }
+  .rp-kpis b { display:block; font-size:16pt; }
+  .rp-kpis span { font-size:8.5pt; color:#555; }
+  .rp-kri { border-left:4px solid #C00A35 !important; } .rp-aan { border-left:4px solid #D97706 !important; }
+  .rp-beh { border-left:4px solid #2F6FB0 !important; } .rp-opt { border-left:4px solid #0B7B5E !important; }
+  .rp-note { color:#555; font-size:9pt; margin:0 0 10px; }
+  .rp-sec { margin:12px 0; } .rp-quad { break-inside:avoid; } .rp-sec h2 { break-after:avoid; }
+  .rp-quad svg { width:100%; max-width:140mm; height:auto; margin:0 auto; }
+  .rp-break { break-before:page; break-inside:auto; }
+  .rp-tbl { width:100%; border-collapse:collapse; font-size:9pt; }
+  .rp-tbl th { text-align:left; border-bottom:1.5px solid #333; padding:3px 4px; }
+  .rp-tbl td { border-bottom:1px solid #e3e3e3; padding:3px 4px; }
+  .rp-tbl .c { text-align:center; } .rp-tbl tr { break-inside:avoid; }
+  .rp-gain { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .rp-gain > div { border:1px solid #ddd; border-radius:6px; padding:6px 8px; }
+  .rp-gain b, .rp-gain span, .rp-gain em { display:block; } .rp-gain span { font-size:9pt; color:#555; } .rp-gain em { font-size:9pt; }
+  .rp-foot { margin-top:14px; font-size:8.5pt; color:#777; border-top:1px solid #ddd; padding-top:6px; }
+  #reportView * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  #reportView .bub, #reportView .bub-c { animation:none !important; opacity:1 !important; }
+}
+/* Tabel in de handleiding (kwadranten) */
+.help-tbl { width:100%; border-collapse:collapse; margin:.4rem 0 1rem; font-size:.92em; }
+.help-tbl th { text-align:left; border-bottom:1.5px solid var(--border-strong); padding:.35rem .5rem; }
+.help-tbl td { border-bottom:1px solid var(--border); padding:.35rem .5rem; vertical-align:top; }
 
 </style>
 </head>
@@ -1787,6 +1823,8 @@
         <div class="dropdown-sep"></div>
         <button class="dropdown-item" onclick="exportCSV();closeDropdowns()"><span data-i18n="ui.headerMenuExportCsvSum">CSV (samenvatting)</span><small data-i18n="ui.headerMenuExportCsvSumSub">Scores per dimensie en niveau</small></button>
         <button class="dropdown-item" onclick="exportODF();closeDropdowns()"><span data-i18n="ui.headerMenuExportCsvDet">CSV (gedetailleerd)</span><small data-i18n="ui.headerMenuExportCsvDetSub">Alle indicatorscores per applicatie</small></button>
+        <div class="dropdown-sep"></div>
+        <button class="dropdown-item" onclick="closeDropdowns();openReport()"><span data-tx="rpMenu">Rapport (PDF)</span><small data-tx="rpMenuSub">Afdrukken of opslaan als PDF voor het management</small></button>
       </div>
     </div>
     <button class="hbtn" onclick="openProfiles()" data-tx="profilesBtn">Profiel</button>
@@ -1812,7 +1850,7 @@
 <div class="container">
   <!-- OVERVIEW VIEW -->
   <div class="view active" id="view-overview">
-    <div class="ov-head"><div><h2 class="merri ov-title" data-i18n="ui.overviewTitle">Assessment overzicht</h2><p class="ov-sub" id="ovSubtitle"></p></div><div class="ov-actions"><button class="btn lg" onclick="importData()" data-ico="upload" data-tx="importJsonShort">Importeren</button><button class="btn primary lg" onclick="addApp()" data-ico="plus" data-tx="addAppShort">Applicatie toevoegen</button></div></div>
+    <div class="ov-head"><div><h2 class="merri ov-title" data-i18n="ui.overviewTitle">Assessment overzicht</h2><p class="ov-sub" id="ovSubtitle"></p></div><div class="ov-actions"><button class="btn lg" onclick="openReport()" data-ico="print" data-tx="rpBtn">Rapport</button><button class="btn lg" onclick="importData()" data-ico="upload" data-tx="importJsonShort">Importeren</button><button class="btn primary lg" onclick="addApp()" data-ico="plus" data-tx="addAppShort">Applicatie toevoegen</button></div></div>
     <div id="overviewContent">
       <div style="text-align:center;padding:3rem;color:#bbb">
         <p style="font-size:1.2rem;margin-bottom:0.5rem">Nog geen applicaties beoordeeld</p>
@@ -2057,7 +2095,7 @@ const UI_X = {
 "exploreSub": "Filters gelden voor het kwadrant, de overzichten en de tabel",
 "exploreTitle": "Verkennen",
 "file": "Bestand",
-"formulaExtra": "Kwadrant: grens bij risico x belang = 13 en mitigatie = 3. Staat dimensie H uit in een profiel, dan is strategisch belang het gemiddelde van F en G.",
+"formulaExtra": "Kwadrant: grens bij risico x belang = 9 en mitigatie = 3. Staat dimensie H uit in een profiel, dan is strategisch belang het gemiddelde van F en G.",
 "fullTime": "ca. 30 minuten",
 "hDupes": "{n} mogelijke schrijfvariant(en) bij {label}",
 "hIncomplete": "{n} applicatie(s) nog niet volledig gescoord",
@@ -2320,7 +2358,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|applicatie gebruikt|applicaties gebruiken} nu het standaardprofiel. Wil je die ook aan \"{naam}\" koppelen? Hun scores blijven gelijk tot je de weging aanpast.\n\nKies Annuleren om alleen nieuwe applicaties dit profiel te geven.",
 "whOwnSub": "Deze applicaties hebben een eigen weging bovenop de standaardweging hierboven.",
 "whOwnTitle": "Applicaties die zelf afwijken",
-"withoutH": "zonder H"
+"withoutH": "zonder H",
+"rpBtn": "Rapport",
+"rpTitle": "Digitale autonomie: portfoliorapport",
+"rpProfile": "Profiel",
+"rpFilter": "Filter",
+"rpApps": "{n|applicatie|applicaties}, {u} uniek",
+"rpQuad": "Kwadrant",
+"rpLowest": "Laagste scores",
+"rpAll": "Alle applicaties, van urgent naar minder urgent",
+"rpGainSub": "Indicatoren die bij Kritiek en Aandachtspunt het vaakst de meeste winst geven. Suggesties, geen advies.",
+"rpExplain": "De autonomiescore (1 tot 10) laat zien hoe urgent de afhankelijkheid van een leverancier is: hoe lager, hoe urgenter. Het kwadrant laat zien welk soort actie past.",
+"rpFoot": "Gemaakt met DAAF v{v} (Digital Autonomy Assessment Framework, Universiteit Utrecht).",
+"reportEmpty": "Geen applicaties om te rapporteren.",
+"rpMenu": "Rapport (PDF)",
+"rpMenuSub": "Afdrukken of opslaan als PDF voor het management"
 },
 "en": {
 "actAdd": "Add as new",
@@ -2406,7 +2458,7 @@ const UI_X = {
 "exploreSub": "Filters apply to the quadrant, the overviews and the table",
 "exploreTitle": "Explore",
 "file": "File",
-"formulaExtra": "Quadrant: boundary at risk x importance = 13 and mitigation = 3. If a profile switches dimension H off, strategic importance is the average of F and G.",
+"formulaExtra": "Quadrant: boundary at risk x importance = 9 and mitigation = 3. If a profile switches dimension H off, strategic importance is the average of F and G.",
 "fullTime": "approx. 30 minutes",
 "hDupes": "{n} possible spelling variant(s) in {label}",
 "hIncomplete": "{n} application(s) not yet fully scored",
@@ -2669,7 +2721,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|application currently uses|applications currently use} the default profile. Link them to \"{naam}\" as well? Their scores stay the same until you change the weights.\n\nChoose Cancel to give only new applications this profile.",
 "whOwnSub": "These applications have their own weights on top of the default weights above.",
 "whOwnTitle": "Applications with their own deviation",
-"withoutH": "without H"
+"withoutH": "without H",
+"rpBtn": "Report",
+"rpTitle": "Digital autonomy: portfolio report",
+"rpProfile": "Profile",
+"rpFilter": "Filter",
+"rpApps": "{n|application|applications}, {u} unique",
+"rpQuad": "Quadrant",
+"rpLowest": "Lowest scores",
+"rpAll": "All applications, from most to least urgent",
+"rpGainSub": "Indicators that most often give the biggest gain for Critical and Attention. Suggestions, not advice.",
+"rpExplain": "The autonomy score (1 to 10) shows how urgent the dependency on a supplier is: the lower, the more urgent. The quadrant shows which kind of action fits.",
+"rpFoot": "Made with DAAF v{v} (Digital Autonomy Assessment Framework, Utrecht University).",
+"reportEmpty": "No applications to report.",
+"rpMenu": "Report (PDF)",
+"rpMenuSub": "Print or save as PDF for management"
 },
 "de": {
 "actAdd": "Als neu hinzufügen",
@@ -2755,7 +2821,7 @@ const UI_X = {
 "exploreSub": "Filter gelten für den Quadranten, die Übersichten und die Tabelle",
 "exploreTitle": "Erkunden",
 "file": "Datei",
-"formulaExtra": "Quadrant: Grenze bei Risiko x Bedeutung = 13 und Minderung = 3. Ist Dimension H in einem Profil ausgeschaltet, ist die strategische Bedeutung der Durchschnitt von F und G.",
+"formulaExtra": "Quadrant: Grenze bei Risiko x Bedeutung = 9 und Minderung = 3. Ist Dimension H in einem Profil ausgeschaltet, ist die strategische Bedeutung der Durchschnitt von F und G.",
 "fullTime": "ca. 30 Minuten",
 "hDupes": "{n} mögliche Schreibvariante(n) bei {label}",
 "hIncomplete": "{n} Anwendung(en) noch nicht vollständig bewertet",
@@ -3018,7 +3084,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|Anwendung verwendet|Anwendungen verwenden} derzeit das Standardprofil. Diese ebenfalls mit \"{naam}\" verknüpfen? Ihre Scores bleiben gleich, bis Sie die Gewichtung ändern.\n\nWählen Sie Abbrechen, um nur neuen Anwendungen dieses Profil zuzuweisen.",
 "whOwnSub": "Diese Anwendungen haben eine eigene Gewichtung zusätzlich zur obigen Standardgewichtung.",
 "whOwnTitle": "Anwendungen mit eigener Abweichung",
-"withoutH": "ohne H"
+"withoutH": "ohne H",
+"rpBtn": "Bericht",
+"rpTitle": "Digitale Autonomie: Portfoliobericht",
+"rpProfile": "Profil",
+"rpFilter": "Filter",
+"rpApps": "{n|Anwendung|Anwendungen}, {u} eindeutig",
+"rpQuad": "Quadrant",
+"rpLowest": "Niedrigste Werte",
+"rpAll": "Alle Anwendungen, von dringend bis weniger dringend",
+"rpGainSub": "Indikatoren, die bei Kritisch und Handlungsbedarf am häufigsten den größten Gewinn bringen. Vorschläge, keine Beratung.",
+"rpExplain": "Der Autonomiewert (1 bis 10) zeigt, wie dringend die Abhängigkeit von einem Anbieter ist: je niedriger, desto dringender. Der Quadrant zeigt, welche Art von Maßnahme passt.",
+"rpFoot": "Erstellt mit DAAF v{v} (Digital Autonomy Assessment Framework, Universität Utrecht).",
+"reportEmpty": "Keine Anwendungen für einen Bericht.",
+"rpMenu": "Bericht (PDF)",
+"rpMenuSub": "Drucken oder als PDF für das Management speichern"
 },
 "fr": {
 "actAdd": "Ajouter comme nouvelle",
@@ -3104,7 +3184,7 @@ const UI_X = {
 "exploreSub": "Les filtres s'appliquent au quadrant, aux vues d'ensemble et au tableau",
 "exploreTitle": "Explorer",
 "file": "Fichier",
-"formulaExtra": "Quadrant : seuil à risque x importance = 13 et atténuation = 3. Si un profil désactive la dimension H, l'importance stratégique est la moyenne de F et G.",
+"formulaExtra": "Quadrant : seuil à risque x importance = 9 et atténuation = 3. Si un profil désactive la dimension H, l'importance stratégique est la moyenne de F et G.",
 "fullTime": "env. 30 minutes",
 "hDupes": "{n} variante(s) orthographique(s) possible(s) dans {label}",
 "hIncomplete": "{n} application(s) pas encore entièrement évaluée(s)",
@@ -3367,7 +3447,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|application utilise|applications utilisent} actuellement le profil par défaut. Les associer aussi à « {naam} » ? Leurs scores restent identiques jusqu'à ce que vous modifiiez les pondérations.\n\nChoisissez Annuler pour n'attribuer ce profil qu'aux nouvelles applications.",
 "whOwnSub": "Ces applications ont leurs propres pondérations en plus des pondérations par défaut ci-dessus.",
 "whOwnTitle": "Applications avec leurs propres écarts",
-"withoutH": "sans H"
+"withoutH": "sans H",
+"rpBtn": "Rapport",
+"rpTitle": "Autonomie numérique : rapport de portefeuille",
+"rpProfile": "Profil",
+"rpFilter": "Filtre",
+"rpApps": "{n|application|applications}, {u} uniques",
+"rpQuad": "Quadrant",
+"rpLowest": "Scores les plus bas",
+"rpAll": "Toutes les applications, de la plus urgente à la moins urgente",
+"rpGainSub": "Indicateurs qui apportent le plus souvent le plus grand gain pour Critique et Attention. Des suggestions, pas des conseils.",
+"rpExplain": "Le score d'autonomie (1 à 10) indique l'urgence de la dépendance envers un fournisseur : plus il est bas, plus c'est urgent. Le quadrant indique le type d'action adapté.",
+"rpFoot": "Réalisé avec DAAF v{v} (Digital Autonomy Assessment Framework, Université d'Utrecht).",
+"reportEmpty": "Aucune application à inclure.",
+"rpMenu": "Rapport (PDF)",
+"rpMenuSub": "Imprimer ou enregistrer en PDF pour la direction"
 },
 "es": {
 "actAdd": "Añadir como nueva",
@@ -3453,7 +3547,7 @@ const UI_X = {
 "exploreSub": "Los filtros se aplican al cuadrante, las vistas generales y la tabla",
 "exploreTitle": "Explorar",
 "file": "Archivo",
-"formulaExtra": "Cuadrante: límite en riesgo x importancia = 13 y mitigación = 3. Si un perfil desactiva la dimensión H, la importancia estratégica es la media de F y G.",
+"formulaExtra": "Cuadrante: límite en riesgo x importancia = 9 y mitigación = 3. Si un perfil desactiva la dimensión H, la importancia estratégica es la media de F y G.",
 "fullTime": "aprox. 30 minutos",
 "hDupes": "{n} posible(s) variante(s) ortográfica(s) en {label}",
 "hIncomplete": "{n} aplicación(es) aún sin puntuar por completo",
@@ -3716,7 +3810,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|aplicación usa|aplicaciones usan} ahora el perfil predeterminado. ¿Vincularlas también a \"{naam}\"? Sus puntuaciones no cambian hasta que modifiques los pesos.\n\nElige Cancelar para asignar este perfil solo a las aplicaciones nuevas.",
 "whOwnSub": "Estas aplicaciones tienen pesos propios además de los pesos predeterminados de arriba.",
 "whOwnTitle": "Aplicaciones con desviación propia",
-"withoutH": "sin H"
+"withoutH": "sin H",
+"rpBtn": "Informe",
+"rpTitle": "Autonomía digital: informe de cartera",
+"rpProfile": "Perfil",
+"rpFilter": "Filtro",
+"rpApps": "{n|aplicación|aplicaciones}, {u} únicas",
+"rpQuad": "Cuadrante",
+"rpLowest": "Puntuaciones más bajas",
+"rpAll": "Todas las aplicaciones, de más a menos urgente",
+"rpGainSub": "Indicadores que con más frecuencia dan la mayor mejora en Crítico y Atención. Sugerencias, no consejos.",
+"rpExplain": "La puntuación de autonomía (1 a 10) muestra la urgencia de la dependencia de un proveedor: cuanto más baja, más urgente. El cuadrante indica qué tipo de acción encaja.",
+"rpFoot": "Creado con DAAF v{v} (Digital Autonomy Assessment Framework, Universidad de Utrecht).",
+"reportEmpty": "No hay aplicaciones para el informe.",
+"rpMenu": "Informe (PDF)",
+"rpMenuSub": "Imprimir o guardar como PDF para la dirección"
 },
 "it": {
 "actAdd": "Aggiungi come nuova",
@@ -3802,7 +3910,7 @@ const UI_X = {
 "exploreSub": "I filtri si applicano al quadrante, alle panoramiche e alla tabella",
 "exploreTitle": "Esplora",
 "file": "File",
-"formulaExtra": "Quadrante: soglia a rischio x importanza = 13 e attenuazione = 3. Se un profilo disattiva la dimensione H, l'importanza strategica è la media di F e G.",
+"formulaExtra": "Quadrante: soglia a rischio x importanza = 9 e attenuazione = 3. Se un profilo disattiva la dimensione H, l'importanza strategica è la media di F e G.",
 "fullTime": "circa 30 minuti",
 "hDupes": "{n} possibile/i variante/i ortografica/he in {label}",
 "hIncomplete": "{n} applicazione/i non ancora valutata/e completamente",
@@ -4065,7 +4173,21 @@ const UI_X = {
 "whLinkStd": "{n} {n|applicazione usa|applicazioni usano} attualmente il profilo predefinito. Collegarle anche a \"{naam}\"? I loro punteggi restano invariati finché non modifichi i pesi.\n\nScegli Annulla per assegnare questo profilo solo alle nuove applicazioni.",
 "whOwnSub": "Queste applicazioni hanno pesi propri in aggiunta ai pesi predefiniti sopra.",
 "whOwnTitle": "Applicazioni con scostamento proprio",
-"withoutH": "senza H"
+"withoutH": "senza H",
+"rpBtn": "Rapporto",
+"rpTitle": "Autonomia digitale: rapporto di portafoglio",
+"rpProfile": "Profilo",
+"rpFilter": "Filtro",
+"rpApps": "{n|applicazione|applicazioni}, {u} uniche",
+"rpQuad": "Quadrante",
+"rpLowest": "Punteggi più bassi",
+"rpAll": "Tutte le applicazioni, dalla più alla meno urgente",
+"rpGainSub": "Indicatori che più spesso danno il guadagno maggiore per Critico e Attenzione. Suggerimenti, non consigli.",
+"rpExplain": "Il punteggio di autonomia (da 1 a 10) mostra quanto è urgente la dipendenza da un fornitore: più è basso, più è urgente. Il quadrante indica il tipo di azione adatto.",
+"rpFoot": "Realizzato con DAAF v{v} (Digital Autonomy Assessment Framework, Università di Utrecht).",
+"reportEmpty": "Nessuna applicazione da includere.",
+"rpMenu": "Rapporto (PDF)",
+"rpMenuSub": "Stampa o salva come PDF per la direzione"
 },
 "da": {
 "actAdd": "Tilføj som ny",
@@ -4151,7 +4273,7 @@ const UI_X = {
 "exploreSub": "Filtre gælder for kvadranten, oversigterne og tabellen",
 "exploreTitle": "Udforsk",
 "file": "Fil",
-"formulaExtra": "Kvadrant: grænse ved risiko x vigtighed = 13 og afbødning = 3. Hvis en profil slår dimension H fra, er strategisk vigtighed gennemsnittet af F og G.",
+"formulaExtra": "Kvadrant: grænse ved risiko x vigtighed = 9 og afbødning = 3. Hvis en profil slår dimension H fra, er strategisk vigtighed gennemsnittet af F og G.",
 "fullTime": "ca. 30 minutter",
 "hDupes": "{n} mulig(e) stavevariant(er) i {label}",
 "hIncomplete": "{n} applikation(er) endnu ikke fuldt scoret",
@@ -4414,7 +4536,21 @@ const UI_X = {
 "whLinkStd": "{n} applikation(er) bruger i øjeblikket standardprofilen. Knyt dem også til \"{naam}\"? Deres scorer forbliver de samme, indtil du ændrer vægtene.\n\nVælg Annuller for kun at give nye applikationer denne profil.",
 "whOwnSub": "Disse applikationer har deres egne vægte oven på standardvægtene ovenfor.",
 "whOwnTitle": "Applikationer med egen afvigelse",
-"withoutH": "uden H"
+"withoutH": "uden H",
+"rpBtn": "Rapport",
+"rpTitle": "Digital autonomi: porteføljerapport",
+"rpProfile": "Profil",
+"rpFilter": "Filter",
+"rpApps": "{n|applikation|applikationer}, {u} unikke",
+"rpQuad": "Kvadrant",
+"rpLowest": "Laveste scorer",
+"rpAll": "Alle applikationer, fra mest til mindst presserende",
+"rpGainSub": "Indikatorer, der oftest giver den største gevinst ved Kritisk og Opmærksomhed. Forslag, ikke rådgivning.",
+"rpExplain": "Autonomiscoren (1 til 10) viser, hvor presserende afhængigheden af en leverandør er: jo lavere, jo mere presserende. Kvadranten viser, hvilken type handling der passer.",
+"rpFoot": "Lavet med DAAF v{v} (Digital Autonomy Assessment Framework, Utrecht Universitet).",
+"reportEmpty": "Ingen applikationer at rapportere.",
+"rpMenu": "Rapport (PDF)",
+"rpMenuSub": "Udskriv eller gem som PDF til ledelsen"
 }
 };
 function tx(k, vars){
@@ -4570,11 +4706,12 @@ function pluralize(s, vars){
       <p>Het tabblad Overzicht is een klein dashboard van alle applicaties in je browser.</p>
       <ul>
         <li><strong>Tegels:</strong> hoeveel applicaties een volledige score hebben, de gemiddelde autonomiescore en de verdeling over de vier kwadranten, met het percentage dat actie vraagt (kritiek of aandachtspunt). Klik op een kleur in de verdeelbalk of op een kwadrant eronder om daarop te filteren; nog een keer klikken zet het filter weer uit. De tegels tonen altijd je hele portefeuille.</li>
-        <li><strong>Autonomie-kwadrant:</strong> horizontaal <strong>Risico x Belang</strong> (1 tot 25), verticaal <strong>Mitigatie</strong> (1 tot 5). De grenzen liggen bij 13 en 3. De grootte van een bol is het strategisch belang. Als je organisatieonderdelen invult, krijgt elk onderdeel een eigen kleur; anders kleurt de bol naar kwadrant. Kies zelf of een bol de initialen of het nummer uit de tabel toont. Bollen die elkaar overlappen worden iets verschoven; een stipje met lijntje toont dan de exacte positie.</li>
+        <li><strong>Autonomie-kwadrant:</strong> horizontaal <strong>Risico x Belang</strong> (1 tot 25), verticaal <strong>Mitigatie</strong> (1 tot 5). De grenzen liggen bij 9 en 3 (zie Het kwadrant). De grootte van een bol is het strategisch belang. Als je organisatieonderdelen invult, krijgt elk onderdeel een eigen kleur; anders kleurt de bol naar kwadrant. Kies zelf of een bol de initialen of het nummer uit de tabel toont. Bollen die elkaar overlappen worden iets verschoven; een stipje met lijntje toont dan de exacte positie.</li>
         <li><strong>Filters en zoeken:</strong> staan direct boven het kwadrant: op naam, ID, beoordelaar, organisatieonderdeel, leverancier en kwadrant. Kwadrant, overzichten en tabel rekenen mee.</li>
         <li><strong>Bol aanwijzen:</strong> ga je met de muis over een bol, dan zie je een klein radardiagram van die applicatie. Klik op de bol om de applicatie te openen.</li>
         <li><strong>Inzichten:</strong> de vijf laagste scores, het leveranciersbeeld en een overzicht per organisatieonderdeel.</li>
         <li><strong>Waar valt het meeste te winnen?</strong> Suggesties voor de applicaties in Kritiek of Aandachtspunt: welke indicatoren komen het vaakst terug in hun top 3 van mogelijke verbeteringen, bij hoeveel applicaties, en wat dat gemiddeld oplevert. Klik op een applicatie om haar bij die indicator te openen. De filters gelden ook hier, dus je kunt dit per leverancier of organisatieonderdeel bekijken. Gebruik het als startpunt voor het gesprek, niet als kant-en-klaar plan.</li>
+        <li><strong>Rapport:</strong> met de knop Rapport (of via Exporteer) maak je een nette afdruk of PDF voor het management, met dezelfde filters als het overzicht.</li>
         <li><strong>Tabel:</strong> klik op een kolomkop om te sorteren. Labels laten zien welk profiel is gebruikt. Klik op een organisatieonderdeel of leverancier om die direct aan te passen; selecteer meerdere rijen om ze in één keer in te stellen. De keuze voor initialen of nummers en de sortering onthoudt de tool.</li>
       </ul>
       <p>Twee applicaties met dezelfde 1-10 score kunnen op verschillende plekken in het kwadrant staan, waardoor de aanbevolen actie verschilt. Per applicatie zie je daarnaast een <strong>radardiagram</strong> met de score per dimensie, dat meebeweegt terwijl je scoort.</p>
@@ -4593,10 +4730,10 @@ function pluralize(s, vars){
     together:`<h3>Samen invullen</h3>
       <p>Het DAAF vul je meestal samen met collega's in. Een gebruikelijke werkwijze, zonder dat iemand hoeft in te loggen:</p>
       <ol>
-        <li><strong>Afspraken vooraf:</strong> één coördinator maakt het profiel van de organisatie (sectorteksten, dimensie H en weging) en deelt het via "Delen". Spreek ook de namen van organisatieonderdelen en leveranciers af.</li>
-        <li><strong>Invullen:</strong> collega's importeren dat profiel via Importeer &gt; Profiel importeren (het wordt dan hun actieve profiel), beoordelen hun applicaties en exporteren die als JSON.</li>
+        <li><strong>Afspraken vooraf:</strong> één coördinator bepaalt welk profiel de organisatie gebruikt. In het hoger onderwijs voldoet meestal het standaardprofiel van het DAAF; dan spreek je gewoon af dat iedereen dat gebruikt. Past het standaardprofiel niet, dan maakt de coördinator een eigen profiel (sectorteksten, dimensie H en weging) en deelt het via "Delen". Spreek ook de namen van organisatieonderdelen en leveranciers af.</li>
+        <li><strong>Invullen:</strong> gebruikt de organisatie een eigen profiel, dan importeren collega's dat via Importeer &gt; Profiel importeren (het wordt dan hun actieve profiel), beoordelen hun applicaties en exporteren die als JSON.</li>
         <li><strong>Verzamelen:</strong> de coördinator importeert alle JSON-bestanden tegelijk.</li>
-        <li><strong>Totaaloverzicht:</strong> het dashboard van de coördinator laat het complete beeld zien: het kwadrant, leveranciers, organisatieonderdelen en datakwaliteit. Dat overzicht kun je presenteren aan verschillende stakeholders, bijvoorbeeld gefilterd per organisatieonderdeel of leverancier. Je kunt het ook afdrukken of via de browser als PDF opslaan, of als CSV verder verwerken.</li>
+        <li><strong>Totaaloverzicht:</strong> het dashboard van de coördinator laat het complete beeld zien: het kwadrant, leveranciers, organisatieonderdelen en datakwaliteit. Dat overzicht kun je presenteren aan verschillende stakeholders, bijvoorbeeld gefilterd per organisatieonderdeel of leverancier. Met de knop Rapport maak je er een afdruk of PDF van voor het management; als CSV kun je het verder verwerken.</li>
       </ol>
       <p>Het dashboard werkt ook voor een individuele gebruiker, maar dan zie je alleen je eigen assessments en niet het totaalbeeld.</p>
       <ul>
@@ -4604,12 +4741,33 @@ function pluralize(s, vars){
       </ul>
       <h3>Organisatieonderdeel en leverancier</h3>
       <p>Per applicatie kun je een <strong>organisatieonderdeel</strong> en een <strong>leverancier</strong> vastleggen. Beide kies je uit een keuzelijst; typ in het keuzemenu om te zoeken of om een nieuwe waarde toe te voegen. Lijkt een nieuwe naam op een bestaand onderdeel (bijvoorbeeld "IT-dienst" en "ICT-diensten"), dan vraagt de tool of je het bestaande bedoelt. Via "Lijst beheren" (tandwiel) kun je onderdelen en leveranciers hernoemen, samenvoegen en verwijderen; alle applicaties worden direct aangepast. Daar stel je ook de naam van het veld in, bijvoorbeeld Afdeling, Faculteit of Waardestroom.</p>
-      <div class="tip"><strong>Samen invullen zonder rommel:</strong> spreek vooraf de namen van onderdelen en leveranciers af. Importeer je een JSON van een collega, dan komen alleen waarden mee die echt bij een applicatie zijn ingevuld; ongebruikte lijstwaarden van je collega blijven buiten je lijst. Komt er bij het importeren toch een onbekende waarde binnen, dan vraagt de voorvertoning om die te koppelen aan een bestaande waarde of bewust toe te voegen. Lijkt de waarde op een bestaande, dan staat die koppeling al voorgesteld.</div>
+      <div class="tip"><strong>Dezelfde namen voor iedereen:</strong> spreek vooraf de namen van onderdelen en leveranciers af. Importeer je een JSON van een collega, dan komen alleen waarden mee die echt bij een applicatie zijn ingevuld; ongebruikte lijstwaarden van je collega blijven buiten je lijst. Komt er bij het importeren toch een onbekende waarde binnen, dan vraagt de voorvertoning om die te koppelen aan een bestaande waarde of bewust toe te voegen. Lijkt de waarde op een bestaande, dan staat die koppeling al voorgesteld.</div>
       <h3>Prullenbak</h3>
       <p>Verwijderde applicaties gaan naar de prullenbak onderaan het overzicht. Daar kun je ze terugzetten of definitief verwijderen.</p>
 `,
     importJson:`<p><strong>JSON importeren:</strong> laad eerder geëxporteerde assessments of een gedeeld profiel (voor een profiel is er ook het aparte menu-item Profiel importeren). Je kunt meerdere bestanden tegelijk kiezen; een voorvertoning laat zien wat er gebeurt (zie Samen invullen). Alle scores, wegingen, opmerkingen, de modus (quick scan of volledig) en het profiel blijven behouden.</p>`,
     about:` Het DAAF en deze tool zijn ontwikkeld door de Universiteit Utrecht als onderdeel van het <a href="https://www.uu.nl/organisatie/digitale-autonomie" target="_blank" rel="noopener">programma Digitale Autonomie</a>.`,
+    quality:`<h3>Datakwaliteit</h3>
+      <p>De kaart Datakwaliteit in het overzicht laat zien wat nog aandacht vraagt voordat je het beeld deelt:</p>
+      <ul>
+        <li>applicaties die nog niet volledig gescoord zijn;</li>
+        <li>applicaties zonder organisatieonderdeel of leverancier;</li>
+        <li>mogelijke schrijfvarianten, zoals "IT-dienst" en "ICT-diensten";</li>
+        <li>verschillende profielen in gebruik, waardoor scores niet volledig vergelijkbaar zijn.</li>
+      </ul>
+      <p>Klik op een melding om er direct naartoe te gaan. Is alles in orde, dan meldt de kaart dat ook.</p>`,
+    quad:`<h3>Het kwadrant</h3>
+      <p>Het kwadrant zet twee dingen tegen elkaar af:</p>
+      <ul>
+        <li><strong>Horizontaal: risico-exposure maal strategisch belang (1 tot 25).</strong> De grens ligt op 9 (3 &times; 3). Daarboven is een applicatie bovengemiddeld risicovol &eacute;n belangrijk.</li>
+        <li><strong>Verticaal: mitigatie (1 tot 5).</strong> De grens ligt op 3. Vanaf 3 is de mitigatie op orde.</li>
+      </ul>
+      <table class="help-tbl"><thead><tr><th>Kwadrant</th><th>Betekenis</th><th>Passende actie</th></tr></thead><tbody>
+        <tr><td>Kritiek</td><td>Veel risico en belang, weinig mitigatie</td><td>Snel mitigeren of een overstap voorbereiden</td></tr>
+        <tr><td>Aandachtspunt</td><td>Minder risico en belang, weinig mitigatie</td><td>Mitigatie opbouwen</td></tr>
+        <tr><td>Beheersbaar</td><td>Veel risico en belang, mitigatie op orde</td><td>Risico bewust accepteren, uitwijkmogelijkheden actueel houden</td></tr>
+        <tr><td>Optimaal</td><td>Minder risico en belang, mitigatie op orde</td><td>Behouden en periodiek controleren</td></tr>
+      </tbody></table>`,
     lever:`<h3>Mogelijke verbeteringen</h3>
       <p>Onder het radardiagram van een applicatie staan drie suggesties: de indicatoren die de autonomiescore het meest verhogen als ze twee stappen beter scoren (bij risico-exposure twee stappen lager, bij mitigatie-capaciteit twee stappen hoger). Per suggestie zie je wat de score wordt, of de applicatie daarmee naar een ander kwadrant gaat, de huidige en de doelscore, en de rubriektekst van het doel. Klik op een suggestie om naar de indicator te gaan.</p>
       <p>Het zijn suggesties op basis van de berekening, geen advies. Of een verbetering haalbaar en verstandig is, hangt af van kosten, contracten, alternatieven en de situatie van je organisatie; dat beoordeel je zelf. Strategisch belang telt niet mee: dat is een eigenschap van de applicatie, geen maatregel. De berekening is dezelfde als die van de score zelf, inclusief wegingen, en er verandert niets aan je assessment.</p>
@@ -4629,11 +4787,12 @@ function pluralize(s, vars){
       <p>The Overview tab is a small dashboard of all applications in your browser.</p>
       <ul>
         <li><strong>Tiles:</strong> how many applications have a complete score, the average autonomy score and the distribution across the four quadrants, with the percentage that requires action (critical or attention). Click a colour in the distribution bar or a quadrant below it to filter on it; click again to clear the filter. The tiles always show your whole portfolio.</li>
-        <li><strong>Autonomy quadrant:</strong> horizontally <strong>Risk x Importance</strong> (1 to 25), vertically <strong>Mitigation</strong> (1 to 5). The boundaries are at 13 and 3. The size of a bubble is the strategic importance. If you fill in organisational units, each unit gets its own colour; otherwise the bubble is coloured by quadrant. Choose whether a bubble shows initials or the number from the table. Overlapping bubbles are shifted slightly; a dot with a line then shows the exact position.</li>
+        <li><strong>Autonomy quadrant:</strong> horizontally <strong>Risk x Importance</strong> (1 to 25), vertically <strong>Mitigation</strong> (1 to 5). The boundaries are at 9 and 3 (see The quadrant). The size of a bubble is the strategic importance. If you fill in organisational units, each unit gets its own colour; otherwise the bubble is coloured by quadrant. Choose whether a bubble shows initials or the number from the table. Overlapping bubbles are shifted slightly; a dot with a line then shows the exact position.</li>
         <li><strong>Filters and search:</strong> directly above the quadrant: by name, ID, assessor, organisational unit, supplier and quadrant. Quadrant, overviews and table follow the filter.</li>
         <li><strong>Hovering over a bubble:</strong> hover over a bubble to see a small radar chart of that application. Click the bubble to open the application.</li>
         <li><strong>Insights:</strong> the five lowest scores, the supplier overview and an overview per organisational unit.</li>
         <li><strong>Where is the most to gain?</strong> Suggestions for the applications in Critical or Attention: which indicators appear most often in their top 3 of possible improvements, for how many applications, and what that yields on average. Click an application to open it at that indicator. The filters apply here too, so you can view this per supplier or organisational unit. Use it as a starting point for discussion, not as a ready-made plan.</li>
+        <li><strong>Report:</strong> the Report button (or Export) creates a clean printout or PDF for management, with the same filters as the overview.</li>
         <li><strong>Table:</strong> click a column header to sort. Labels show which profile was used. Click an organisational unit or supplier to change it directly; select several rows to set them in one go. The tool remembers your choice of initials or numbers and the sort order.</li>
       </ul>
       <p>Two applications with the same 1-10 score can appear in different quadrant positions, leading to a different recommended action. For each application you also see a <strong>radar chart</strong> with the score per dimension, which updates while you score.</p>
@@ -4652,10 +4811,10 @@ function pluralize(s, vars){
     together:`<h3>Assessing together</h3>
       <p>The DAAF is usually completed together with colleagues. A common way of working, without anyone having to log in:</p>
       <ol>
-        <li><strong>Agreements beforehand:</strong> one coordinator creates the organisation's profile (sector texts, dimension H and weights) and shares it via "Share". Also agree on the names of organisational units and suppliers.</li>
-        <li><strong>Completing:</strong> colleagues import that profile via Import &gt; Import profile (it then becomes their active profile), assess their applications and export them as JSON.</li>
+        <li><strong>Agreements beforehand:</strong> one coordinator decides which profile the organisation uses. In higher education the DAAF standard profile is usually sufficient; you then simply agree that everyone uses it. If the standard profile does not fit, the coordinator creates an own profile (sector texts, dimension H and weights) and shares it via "Share". Also agree on the names of organisational units and suppliers.</li>
+        <li><strong>Completing:</strong> if the organisation uses an own profile, colleagues import it via Import &gt; Import profile (it then becomes their active profile), assess their applications and export them as JSON.</li>
         <li><strong>Collecting:</strong> the coordinator imports all JSON files at once.</li>
-        <li><strong>Complete overview:</strong> the coordinator's dashboard shows the complete picture: the quadrant, suppliers, organisational units and data quality. You can present that overview to different stakeholders, for example filtered by organisational unit or supplier. You can also print it or save it as PDF via the browser, or process it further as CSV.</li>
+        <li><strong>Complete overview:</strong> the coordinator's dashboard shows the complete picture: the quadrant, suppliers, organisational units and data quality. You can present that overview to different stakeholders, for example filtered by organisational unit or supplier. With the Report button you turn it into a printout or PDF for management; as CSV you can process it further.</li>
       </ol>
       <p>The dashboard also works for an individual user, but then you only see your own assessments and not the complete picture.</p>
       <ul>
@@ -4663,12 +4822,33 @@ function pluralize(s, vars){
       </ul>
       <h3>Organisational unit and supplier</h3>
       <p>For each application you can record an <strong>organisational unit</strong> and a <strong>supplier</strong>. You choose both from a list; type in the menu to search or to add a new value. If a new name resembles an existing unit (for example "IT service" and "IT services"), the tool asks whether you meant the existing one. Via "Manage list" (gear icon) you can rename, merge and delete units and suppliers; all applications are updated immediately. There you also set the name of the field, for example Department, Faculty or Value stream.</p>
-      <div class="tip"><strong>Assessing together without a mess:</strong> agree on the names of units and suppliers beforehand. When you import a colleague's JSON, only values actually filled in for an application come along; unused list values of your colleague stay out of your list. If an unknown value still comes in during import, the preview asks you to match it to an existing value or add it deliberately. If the value resembles an existing one, that match is already suggested.</div>
+      <div class="tip"><strong>The same names for everyone:</strong> agree on the names of units and suppliers beforehand. When you import a colleague's JSON, only values actually filled in for an application come along; unused list values of your colleague stay out of your list. If an unknown value still comes in during import, the preview asks you to match it to an existing value or add it deliberately. If the value resembles an existing one, that match is already suggested.</div>
       <h3>Trash</h3>
       <p>Deleted applications go to the trash at the bottom of the overview. From there you can restore them or delete them permanently.</p>
 `,
     importJson:`<p><strong>Import JSON:</strong> load previously exported assessments or a shared profile (for a profile there is also the separate menu item Import profile). You can select several files at once; a preview shows what will happen (see Assessing together). All scores, weights, remarks, the mode (quick scan or full) and the profile are preserved.</p>`,
     about:` The DAAF and this tool were developed by Utrecht University as part of the <a href="https://www.uu.nl/en/organisation/digital-autonomy" target="_blank" rel="noopener">Digital Autonomy programme</a>.`,
+    quality:`<h3>Data quality</h3>
+      <p>The Data quality card in the overview shows what still needs attention before you share the picture:</p>
+      <ul>
+        <li>applications that have not been fully scored yet;</li>
+        <li>applications without an organisational unit or supplier;</li>
+        <li>possible spelling variants, such as "IT service" and "IT services";</li>
+        <li>different profiles in use, which makes scores not fully comparable.</li>
+      </ul>
+      <p>Click a notice to go straight to it. If everything is in order, the card says so.</p>`,
+    quad:`<h3>The quadrant</h3>
+      <p>The quadrant compares two things:</p>
+      <ul>
+        <li><strong>Horizontal: risk exposure times strategic importance (1 to 25).</strong> The threshold is 9 (3 &times; 3). Above it, an application carries above-average risk and is of above-average importance.</li>
+        <li><strong>Vertical: mitigation (1 to 5).</strong> The threshold is 3. From 3 upwards, mitigation is in order.</li>
+      </ul>
+      <table class="help-tbl"><thead><tr><th>Quadrant</th><th>Meaning</th><th>Suitable action</th></tr></thead><tbody>
+        <tr><td>Critical</td><td>High risk and importance, weak mitigation</td><td>Mitigate quickly or prepare a migration</td></tr>
+        <tr><td>Attention</td><td>Lower risk and importance, weak mitigation</td><td>Build up mitigation</td></tr>
+        <tr><td>Manageable</td><td>High risk and importance, mitigation in order</td><td>Accept the risk consciously, keep fallback options current</td></tr>
+        <tr><td>Optimal</td><td>Lower risk and importance, mitigation in order</td><td>Maintain and review periodically</td></tr>
+      </tbody></table>`,
     lever:`<h3>Possible improvements</h3>
       <p>Below an application's radar chart you see three suggestions: the indicators that raise the autonomy score the most if they score two steps better (two steps lower for risk exposure, two steps higher for mitigation capacity). For each suggestion you see the new score, whether the application moves to another quadrant, the current and target score, and the rubric text of the target. Click a suggestion to go to the indicator.</p>
       <p>These are suggestions based on the calculation, not advice. Whether an improvement is feasible and sensible depends on costs, contracts, alternatives and your organisation's situation; that is for you to judge. Strategic importance is not included: it is a property of the application, not a measure. The calculation is the same as for the score itself, including weights, and nothing in your assessment changes.</p>
@@ -4697,6 +4877,10 @@ function pluralize(s, vars){
     body = body.replace(/(<h3>Quick scan<\/h3>\s*<p>[\s\S]*?)(<\/p>)/, (m,a,c)=>a+X.quick+c);
     body = after(body, nl?'Data opslaan':'Saving data', X.tips);
     body = after(body, nl?'Wat zegt de score?':'What does the score say?', X.lever);
+    body = after(body, nl?'Wat zegt de score?':'What does the score say?', X.quad);
+    body = after(body, nl?'Het overzicht':'The overview', X.quality);
+    // Geen vakjargon bij de CSV-export
+    body = body.replace('Semicolon-gescheiden met BOM voor Excel-compatibiliteit.', 'Opent direct goed in Excel.').replace('Semicolon-separated with BOM for Excel compatibility.', 'Opens correctly in Excel.');
     body = body.replace(/(<h3>(Wat is het DAAF\?|What is the DAAF\?)<\/h3>\s*<p>[\s\S]*?)(<\/p>)/, (m,a,b,c)=>a+X.about+c);
     return body;
   }
@@ -4919,49 +5103,53 @@ const CHANGELOG = [
       en:'<strong>This is the biggest update so far.</strong> Since the first version, we have received an incredible amount of feedback, from colleagues in our own sector and from users in very different sectors: in conversations, by e-mail and in reviews. Thank you! We were able to process nearly all of it in version 0.9 and now in version 1.0, with a completely new design and a whole set of new features. With 1.0 the tool becomes faster to use and takes you further: from insight to possible improvements. Your existing assessments, weights and scores stay exactly as they were.'
     },
     items:[
+      { nl:'<strong>Kwadrantgrens aangepast:</strong> de praktijk bij de Universiteit Utrecht leerde ons dat een andere kwadrantgrens een meer realistisch beeld geeft van de digitale autonomiepositie. Dit hebben we nu voor het hele DAAF-model doorgevoerd. De grens tussen laag en hoog ligt nu op 9 (3 &times; 3, het midden van risico-exposure maal het midden van strategisch belang) in plaats van 13. Je scores blijven gelijk, maar sommige applicaties kunnen in een ander kwadrant vallen.',
+        en:'<strong>Quadrant threshold adjusted:</strong> practical experience at Utrecht University taught us that a different quadrant threshold gives a more realistic picture of the digital autonomy position. We have now applied this to the entire DAAF model. The threshold between low and high is now 9 (3 &times; 3, the midpoint of risk exposure times the midpoint of strategic importance) instead of 13. Your scores stay the same, but some applications may move to a different quadrant.' },
+      { nl:'<strong>Je gegevens blijven veilig:</strong> aan de opslag, het exportformaat en de berekening van de autonomiescore is niets veranderd.',
+        en:'<strong>Your data stays safe:</strong> nothing has changed in storage, the export format or the calculation of the autonomy score.' },
       { nl:'<strong>Mogelijke verbeteringen:</strong> per applicatie drie suggesties: welke indicator verhoogt de autonomiescore het meest als hij beter scoort, wat de score dan wordt en of de applicatie daarmee van kwadrant wisselt. Klik op een suggestie om naar de indicator te gaan. Het zijn suggesties op basis van de berekening, geen advies; de berekening houdt rekening met de weging van je profiel.',
         en:'<strong>Possible improvements:</strong> three suggestions per application: which indicator raises the autonomy score the most if it scores better, what the score becomes and whether the application moves to another quadrant. Click a suggestion to go to the indicator. These are suggestions based on the calculation, not advice; the calculation takes your profile\'s weights into account.' },
       { nl:'<strong>Waar valt het meeste te winnen?</strong> In het overzicht zie je welke verbeteringen het vaakst terugkomen bij de applicaties in Kritiek en Aandachtspunt, met per indicator de drie applicaties met de meeste winst. Met &ldquo;Bekijk alle&rdquo; open je een lijst met alle applicaties, gesorteerd op winst. Met de filters bekijk je dit per leverancier of organisatieonderdeel.',
         en:'<strong>Where is the most to gain?</strong> The overview shows which improvements appear most often for the applications in Critical and Attention, with the three applications with the most to gain per indicator. &ldquo;View all&rdquo; opens a list of all applications, sorted by gain. Use the filters to view this per supplier or organisational unit.' },
-      { nl:'<strong>Sneller scoren:</strong> onder elke indicator staat de tekst van de gekozen score, bij het aanwijzen van een scoreknop zie je de rubriek, en je kunt scoren met het toetsenbord (1 tot 5, daarna ga je vanzelf naar de volgende). Een vaste balk houdt naam, voortgang per niveau, score en kwadrant in beeld.',
-        en:'<strong>Faster scoring:</strong> the text of the chosen score appears below each indicator, pointing at a score button shows its rubric, and you can score with the keyboard (1 to 5, then you move to the next one automatically). A fixed bar keeps the name, progress per level, score and quadrant in view.' },
+      { nl:'<strong>Rapport:</strong> via de knop Rapport in het overzicht of het menu Exporteer maak je een nette afdruk of PDF voor het management, met kerncijfers, kwadrant, laagste scores, waar het meeste te winnen valt en alle applicaties op volgorde van urgentie.',
+        en:'<strong>Report:</strong> use the Report button in the overview or the Export menu to create a clean printout or PDF for management, with key figures, quadrant, lowest scores, where the most is to gain and all applications in order of urgency.' },
       { nl:'<strong>Rustiger scherm:</strong> de kolom Weging verschijnt alleen waar een weging afwijkt van het DAAF-model, een nieuwe applicatie begint met één regel in plaats van lege scorekaarten, en een indicator met een opmerking herken je aan een tekstballonnetje.',
         en:'<strong>Calmer screen:</strong> the Weight column only appears where a weight differs from the DAAF model, a new application starts with a single line instead of empty score cards, and an indicator with a remark shows a speech bubble.' },
+      { nl:'<strong>Sneller scoren:</strong> onder elke indicator staat de tekst van de gekozen score, bij het aanwijzen van een scoreknop zie je de rubriek, en je kunt scoren met het toetsenbord (1 tot 5, daarna ga je vanzelf naar de volgende). Een vaste balk houdt naam, voortgang per niveau, score en kwadrant in beeld.',
+        en:'<strong>Faster scoring:</strong> the text of the chosen score appears below each indicator, pointing at a score button shows its rubric, and you can score with the keyboard (1 to 5, then you move to the next one automatically). A fixed bar keeps the name, progress per level, score and quadrant in view.' },
       { nl:'<strong>Overzicht:</strong> de kerncijfers staan in één rij, met een verdeelbalk over de kwadranten waarop je kunt klikken om te filteren. De overzichten per leverancier en organisatieonderdeel zijn beter uitgelijnd en hebben een knop Toon alle.',
         en:'<strong>Overview:</strong> the key figures are in a single row, with a distribution bar across the quadrants that you can click to filter. The overviews per supplier and organisational unit are better aligned and have a Show all button.' },
-      { nl:'<strong>Radardiagram:</strong> wijs een dimensie aan voor uitleg, de score en de indicatoren eronder; klik om ernaartoe te gaan.',
-        en:'<strong>Radar chart:</strong> point at a dimension to see an explanation, its score and the indicators below it; click to go there.' },
       { nl:'<strong>Profielen:</strong> je kiest het sectorsjabloon nu in de profieleditor en ziet alle teksten meteen als voorbeeld in de velden, voordat je iets overneemt. De sjablonen zijn beschikbaar in alle zeven talen (naar beste kunnen vertaald) en het tabblad Weging toont de teksten zoals je ze net hebt aangepast.',
         en:'<strong>Profiles:</strong> you now choose the sector template in the profile editor and immediately see all its texts as a preview in the fields, before you copy anything. The templates are available in all seven languages (best-effort translations) and the Weights tab shows the texts as you have just adapted them.' },
-      { nl:'<strong>Je gegevens blijven veilig:</strong> aan de opslag, het exportformaat en de berekening van de score is niets veranderd.',
-        en:'<strong>Your data stays safe:</strong> nothing has changed in storage, the export format or the score calculation.' }
+      { nl:'<strong>Radardiagram:</strong> wijs een dimensie aan voor uitleg, de score en de indicatoren eronder; klik om ernaartoe te gaan.',
+        en:'<strong>Radar chart:</strong> point at a dimension to see an explanation, its score and the indicators below it; click to go there.' }
     ]},
   { version:'0.9.0', date:'2026-09-26',
     items:[
-      { nl:'<strong>Dashboard:</strong> een nieuw overzicht met kerncijfers, een interactief autonomiekwadrant (bolgrootte = strategisch belang, kleur per organisatieonderdeel), filters, een sorteerbare tabel en overzichten per leverancier en per organisatieonderdeel. Beweeg over een bol voor een mini-radardiagram; je keuze voor initialen of nummers wordt onthouden. Met voorbeelddata van een fictieve universiteit verken je alles meteen, en verwijder je het daarna in één klik.',
-        en:'<strong>Dashboard:</strong> a new overview with key figures, an interactive autonomy quadrant (bubble size = strategic importance, colour per organisational unit), filters, a sortable table and overviews per supplier and per organisational unit. Hover over a bubble for a mini radar chart; your choice of initials or numbers is remembered. Sample data of a fictitious university lets you explore everything right away, and removes again in one click.' },
-      { nl:'<strong>Radardiagram per applicatie:</strong> een diagram van de acht dimensies met uitleg per dimensie, een scoremeter en snelle navigatie tussen de niveaus.',
-        en:'<strong>Radar chart per application:</strong> a chart of the eight dimensions with an explanation per dimension, a score gauge and quick navigation between the levels.' },
       { nl:'<strong>Profiel van je organisatie:</strong> via de nieuwe knop Profiel leg je in één profiel vast hoe jouw organisatie het DAAF gebruikt, met drie tabbladen: <em>Sectorteksten</em> (dimensie H en G2 voor jouw sector), <em>Dimensie H</em> (aan of uit) en <em>Weging</em> (één weging voor de hele organisatie; per applicatie kun je nog afwijken). Je begint met een sjabloon voor hoger onderwijs (standaard), funderend onderwijs, gemeenten, Rijk, provincies, waterschappen en uitvoeringsorganisaties (zoals UWV, DUO of Belastingdienst) of een generiek sjabloon. Ook later kun je de teksten van een sjabloon in één keer overnemen. Profielen zijn te delen en reizen mee in elke JSON-export; een gedeeld profiel kan bij het importeren meteen het actieve profiel worden. De sjablonen buiten het hoger onderwijs zijn een eerste versie: feedback vanuit de sectoren is van harte welkom, zodat we ze samen kunnen verbeteren. Met dank aan Thomas Steenbergen (SIVON) voor zijn bijdrage aan het sjabloon voor het funderend onderwijs.',
         en:'<strong>Your organisation\'s profile:</strong> with the new Profile button you set in one profile how your organisation uses the DAAF, with three tabs: <em>Sector texts</em> (dimension H and G2 for your sector), <em>Dimension H</em> (on or off) and <em>Weights</em> (one weighting for the whole organisation; per application you can still deviate). You start from a template for higher education (default), primary and secondary education, municipalities, central government, provinces, water authorities and executive agencies (such as tax or benefits agencies), or a generic template. You can also copy the texts of a template later on in one go. Profiles can be shared and travel along in every JSON export; a shared profile can become the active profile straight away when imported. The templates outside higher education are a first version: feedback from the sectors is very welcome, so we can improve them together. Thanks to Thomas Steenbergen (SIVON) for his contribution to the template for primary and secondary education.' },
       { nl:'<strong>Samen beoordelen:</strong> importeer meerdere JSON-bestanden tegelijk met een voorbeeld vooraf en herken nieuwere versies van hetzelfde assessment, zodat er geen dubbelingen ontstaan.',
         en:'<strong>Assessing together:</strong> import several JSON files at once with a preview, and recognise newer versions of the same assessment, so no duplicates arise.' },
+      { nl:'<strong>Dashboard:</strong> een nieuw overzicht met kerncijfers, een interactief autonomiekwadrant (bolgrootte = strategisch belang, kleur per organisatieonderdeel), filters, een sorteerbare tabel en overzichten per leverancier en per organisatieonderdeel. Beweeg over een bol voor een mini-radardiagram; je keuze voor initialen of nummers wordt onthouden. Met voorbeelddata van een fictieve universiteit verken je alles meteen, en verwijder je het daarna in één klik.',
+        en:'<strong>Dashboard:</strong> a new overview with key figures, an interactive autonomy quadrant (bubble size = strategic importance, colour per organisational unit), filters, a sortable table and overviews per supplier and per organisational unit. Hover over a bubble for a mini radar chart; your choice of initials or numbers is remembered. Sample data of a fictitious university lets you explore everything right away, and removes again in one click.' },
+      { nl:'<strong>Je gegevens zijn veilig:</strong> bestaande assessments en eerder geëxporteerde JSON-bestanden werken gewoon. Bij de eerste keer openen wordt automatisch een reservekopie van je opgeslagen gegevens gemaakt.',
+        en:'<strong>Your data is safe:</strong> existing assessments and previously exported JSON files keep working. The first time you open this version, a backup of your stored data is made automatically.' },
       { nl:'<strong>Organisatieonderdeel en leverancier:</strong> twee nieuwe optionele velden met gedeelde keuzelijsten. Bij het samenvoegen van bestanden van collega\'s koppel je afwijkende schrijfwijzen (zoals &ldquo;ICT-dienst&rdquo; en &ldquo;ICT-diensten&rdquo;) aan één waarde, zodat het overzicht schoon blijft. Beide velden pas je ook direct in de tabel aan, voor één of voor meerdere applicaties tegelijk.',
         en:'<strong>Organisational unit and supplier:</strong> two new optional fields with shared pick lists. When merging colleagues\' files you map different spellings (such as &ldquo;IT service&rdquo; and &ldquo;IT services&rdquo;) to a single value, so the overview stays clean. You can also edit both fields directly in the table, for one or several applications at once.' },
       { nl:'<strong>Datakwaliteit:</strong> het dashboard wijst je op onvolledige assessments, ontbrekende organisatieonderdelen of leveranciers en dubbele schrijfwijzen in de keuzelijsten.',
         en:'<strong>Data quality:</strong> the dashboard points out incomplete assessments, missing organisational units or suppliers and duplicate spellings in the pick lists.' },
-      { nl:'<strong>Prullenbak:</strong> verwijderde applicaties gaan eerst naar de prullenbak en zijn terug te zetten.',
-        en:'<strong>Trash:</strong> deleted applications go to a trash bin first and can be restored.' },
+      { nl:'<strong>Radardiagram per applicatie:</strong> een diagram van de acht dimensies met uitleg per dimensie, een scoremeter en snelle navigatie tussen de niveaus.',
+        en:'<strong>Radar chart per application:</strong> a chart of the eight dimensions with an explanation per dimension, a score gauge and quick navigation between the levels.' },
       { nl:'<strong>Nieuw ontwerp:</strong> een volledig vernieuwde interface, nieuwe keuzemenu&rsquo;s met zoeken, een <strong>donkere modus</strong> (standaard licht; kies zelf donker of systeem volgen via het zonicoon) en sneltoetsen: <kbd>/</kbd> om te zoeken, <kbd>Esc</kbd> om een venster te sluiten.',
         en:'<strong>New design:</strong> a completely refreshed interface, new searchable menus, a <strong>dark mode</strong> (light by default; choose dark or follow system via the sun icon) and keyboard shortcuts: <kbd>/</kbd> to search, <kbd>Esc</kbd> to close a window.' },
-      { nl:'<strong>Veiliger exporteren en importeren:</strong> geen gegevensverlies meer bij applicaties met dezelfde naam, geïmporteerde bestanden worden gecontroleerd en de quickscanmodus blijft behouden. Een CSV-lijst met applicaties mag nu ook organisatieonderdeel en leverancier bevatten; de kolommen worden herkend aan de kopregel.',
-        en:'<strong>Safer export and import:</strong> no more data loss with applications that share a name, imported files are validated, and quick scan mode is kept. A CSV list of applications can now also contain organisational unit and supplier; columns are recognised by the header row.' },
       { nl:'<strong>Volledig meertalig:</strong> alle nieuwe onderdelen zijn beschikbaar in alle zeven talen. Nederlands en Engels zijn gecontroleerd, de andere talen zijn naar beste kunnen (bijdragen welkom). De Duitse vertaling is verbeterd, onder meer &ldquo;Anbieter&rdquo; in plaats van &ldquo;Lieferant&rdquo;, met dank aan Lucas Hofmann (Universität Würzburg). De handleiding en dit overzicht zijn in het Nederlands en Engels.',
         en:'<strong>Fully multilingual:</strong> all new features are available in all seven languages. Dutch and English are verified, the other languages are best effort (contributions welcome). The German translation has been improved, including &ldquo;Anbieter&rdquo; instead of &ldquo;Lieferant&rdquo;, thanks to Lucas Hofmann (University of Würzburg). The user guide and this overview are in Dutch and English.' },
       { nl:'<strong>Vertalingen verbeterd:</strong> in alle talen verwijzen de omschrijvingen van dimensie G en H en de vragen G2, H1 en H2 weer naar onderzoek, zoals bedoeld in het DAAF.',
         en:'<strong>Translations corrected:</strong> in all languages the descriptions of dimensions G and H and the questions G2, H1 and H2 again refer to research, as intended in the DAAF.' },
-      { nl:'<strong>Je gegevens zijn veilig:</strong> bestaande assessments en eerder geëxporteerde JSON-bestanden werken gewoon. Bij de eerste keer openen wordt automatisch een reservekopie van je opgeslagen gegevens gemaakt.',
-        en:'<strong>Your data is safe:</strong> existing assessments and previously exported JSON files keep working. The first time you open this version, a backup of your stored data is made automatically.' }
+      { nl:'<strong>Veiliger exporteren en importeren:</strong> geen gegevensverlies meer bij applicaties met dezelfde naam, geïmporteerde bestanden worden gecontroleerd en de quickscanmodus blijft behouden. Een CSV-lijst met applicaties mag nu ook organisatieonderdeel en leverancier bevatten; de kolommen worden herkend aan de kopregel.',
+        en:'<strong>Safer export and import:</strong> no more data loss with applications that share a name, imported files are validated, and quick scan mode is kept. A CSV list of applications can now also contain organisational unit and supplier; columns are recognised by the header row.' },
+      { nl:'<strong>Prullenbak:</strong> verwijderde applicaties gaan eerst naar de prullenbak en zijn terug te zetten.',
+        en:'<strong>Trash:</strong> deleted applications go to a trash bin first and can be restored.' }
     ]},
   { version:'0.8.4', date:'2026-06-29', items:[
     { nl:'<strong>Meertalige interface:</strong> de tool is nu beschikbaar in het Nederlands, Engels, Duits, Frans, Spaans, Italiaans en Deens; wissel van taal via de werkbalk. Nederlands en Engels zijn redelijk gecontroleerd; de andere talen zijn naar beste kunnen en nog niet door moedertaalsprekers nagekeken (bijdragen welkom). Met hulp van Thomas Steenbergen (OSPO-adviseur bij SIVON).',
@@ -5140,14 +5328,16 @@ function normalize10(raw) {
   const minL=Math.log(0.04), maxL=Math.log(5.0);
   return Math.max(1, Math.min(10, (Math.log(raw)-minL)/(maxL-minL)*9+1));
 }
-// Kwadrant: x = risico x belang (1-25, grens 13 = midden), y = mitigatie (1-5, grens 3). Gelijk aan de indeling in het kwadrant.
+// Kwadrant: x = risico x belang (1-25), y = mitigatie (1-5, grens 3). Grens x = 9 = 3 x 3: het midden van risico maal het midden van belang
+// (tot 1.0.0 was dat 13; praktijkervaring bij de Universiteit Utrecht liet zien dat die grens te hoog lag).
+const QUAD_X = 9;
 function quadrantOf(res){
   const r=res.nivs.risico, m=res.nivs.mitigatie, b=res.nivs.belang;
   if (r==null||m==null||b==null) return null;
   const x=r*b, y=m;
-  if (x<=13 && y>=3) return 'opt';
-  if (x>13 && y>=3) return 'beh';
-  if (x<=13 && y<3) return 'aan';
+  if (x<=QUAD_X && y>=3) return 'opt';
+  if (x>QUAD_X && y>=3) return 'beh';
+  if (x<=QUAD_X && y<3) return 'aan';
   return 'kri';
 }
 const QUAD_COLORS = { opt:'#0B7B5E', beh:'#2F6FB0', aan:'#D97706', kri:'#C00A35' };
@@ -5510,7 +5700,7 @@ function openListManager(kind){
   const pairs=[]; for (let i=0;i<vals.length;i++) for (let j=i+1;j<vals.length;j++) if (isSimilar(vals[i],vals[j])) pairs.push([vals[i],vals[j]]);
   if (pairs.length) {
     h+='<div class="tip warn"><strong>'+esc(tx('possibleDupes'))+'</strong><ul class="lm-dupes">';
-    for (const [a,b] of pairs) h+=`<li><strong>${esc(a)}</strong> (${usageOf(kind,a)}) &asymp; <strong>${esc(b)}</strong> (${usageOf(kind,b)}) <button class="mini-btn" onclick="mergeListItem('${kind}','${jsq(a)}','${jsq(b)}')">${esc(tx('mergeInto',{b}))}</button> <button class="mini-btn" onclick="mergeListItem('${kind}','${jsq(b)}','${jsq(a)}')">${esc(tx('mergeInto',{b:a}))}</button></li>`;
+    for (const [a,b] of pairs) h+=`<li><strong>${esc(a)}</strong> (${usageOf(kind,a)}) &asymp; <strong>${esc(b)}</strong> (${usageOf(kind,b)}) <button class="mini-btn" onclick="mergeListItem('${kind}','${esc(jsq(a))}','${esc(jsq(b))}')">${esc(tx('mergeInto',{b}))}</button> <button class="mini-btn" onclick="mergeListItem('${kind}','${esc(jsq(b))}','${esc(jsq(a))}')">${esc(tx('mergeInto',{b:a}))}</button></li>`;
     h+='</ul></div>';
   }
   if (!vals.length) h+='<p class="muted">'+esc(tx('listEmpty'))+'</p>';
@@ -5518,8 +5708,8 @@ function openListManager(kind){
     h+=`<table class="pm-tbl"><thead><tr><th>${esc(listLabel(kind))}</th><th>${esc(tx('inUse'))}</th><th>${esc(tx('mergeWith'))}</th><th></th></tr></thead><tbody>`;
     for (const v of vals) {
       const others=vals.filter(x=>x!==v);
-      h+=`<tr><td>${kind==='org'?`<i class="lm-sw" style="background:${orgSwatch(v)}"></i>`:''}<strong>${esc(v)}</strong></td><td>${usageOf(kind,v)}</td><td>${others.length?`<select onchange="if(this.value)mergeListItem('${kind}','${jsq(v)}',this.value)"><option value="">&ndash;</option>${others.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`:''}</td>`;
-      h+=`<td class="nowrap"><button class="btn" onclick="renameListItem('${kind}','${jsq(v)}')">${esc(tx('rename'))}</button> <button class="btn danger" onclick="deleteListItem('${kind}','${jsq(v)}')">&#128465;</button></td></tr>`;
+      h+=`<tr><td>${kind==='org'?`<i class="lm-sw" style="background:${orgSwatch(v)}"></i>`:''}<strong>${esc(v)}</strong></td><td>${usageOf(kind,v)}</td><td>${others.length?`<select onchange="if(this.value)mergeListItem('${kind}','${esc(jsq(v))}',this.value)"><option value="">&ndash;</option>${others.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`:''}</td>`;
+      h+=`<td class="nowrap"><button class="btn" onclick="renameListItem('${kind}','${esc(jsq(v))}')">${esc(tx('rename'))}</button> <button class="btn danger" onclick="deleteListItem('${kind}','${esc(jsq(v))}')">&#128465;</button></td></tr>`;
     }
     h+='</tbody></table>';
   }
@@ -5618,6 +5808,7 @@ function applyImportMapping(plan){
 
 // === ICONEN (lijnstijl, 24x24, currentColor) ===
 const ICONS = {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="2"/><path d="M7 14h10v6H7z"/>',
   upload:'<path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
   download:'<path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
   eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/>',
@@ -5977,19 +6168,19 @@ function aggTable(list, keyFn, emptyMsg, kind){
   return h+'</tbody></table>';
 }
 
-// Bellenkwadrant. x = risico x belang (1-25), y = mitigatie (1-5), grootte = strategisch belang.
+// Bellenkwadrant. x = risico x belang (1-25, wortelschaal met de grens van 9 in het midden), y = mitigatie (1-5), grootte = strategisch belang.
 function bubbleSVG(list, orgColors){
   const W=760, H=460, L=58, R=18, T=18, B=54, pw=W-L-R, ph=H-T-B;
-  const X=v=>L+(v-1)/24*pw, Y=v=>T+(5-v)/4*ph; const xm=X(13), ym=Y(3);
+  const X=v=>L+(Math.sqrt(Math.max(1,v))-1)/4*pw, Y=v=>T+(5-v)/4*ph; const xm=X(QUAD_X), ym=Y(3); // wortelschaal: 9 ligt in het midden
   let s=`<svg class="bubble-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(tx('quadTitle'))}"><defs><filter id="bubShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000" flood-opacity="0.18"/></filter></defs>`;
   s+=`<rect class="q-bg q-opt" x="${L}" y="${T}" width="${xm-L}" height="${ym-T}" rx="10"/><rect class="q-bg q-beh" x="${xm}" y="${T}" width="${L+pw-xm}" height="${ym-T}" rx="10"/>`;
   s+=`<rect class="q-bg q-aan" x="${L}" y="${ym}" width="${xm-L}" height="${T+ph-ym}" rx="10"/><rect class="q-bg q-kri" x="${xm}" y="${ym}" width="${L+pw-xm}" height="${T+ph-ym}" rx="10"/>`;
-  for (const v of [5,9,17,21]) s+=`<line class="gridl" x1="${X(v)}" y1="${T}" x2="${X(v)}" y2="${T+ph}"/>`;
+  for (const v of [4,16]) s+=`<line class="gridl" x1="${X(v)}" y1="${T}" x2="${X(v)}" y2="${T+ph}"/>`;
   for (const v of [2,4]) s+=`<line class="gridl" x1="${L}" y1="${Y(v)}" x2="${L+pw}" y2="${Y(v)}"/>`;
   s+=`<line class="midl" x1="${xm}" y1="${T}" x2="${xm}" y2="${T+ph}"/><line class="midl" x1="${L}" y1="${ym}" x2="${L+pw}" y2="${ym}"/>`;
   const ql=(x,y,k,anchor)=>`<text x="${x}" y="${y}" text-anchor="${anchor}" class="q-lbl" fill="${QUAD_COLORS[k]}">${esc(quadLabel(k).toUpperCase())}</text>`;
   s+=ql(L+14,T+24,'opt','start')+ql(L+pw-14,T+24,'beh','end')+ql(L+14,T+ph-14,'aan','start')+ql(L+pw-14,T+ph-14,'kri','end');
-  for (const v of [1,5,9,13,17,21,25]) s+=`<text x="${X(v)}" y="${T+ph+18}" text-anchor="middle" class="ax-tick">${v}</text>`;
+  for (const v of [1,4,9,16,25]) s+=`<text x="${X(v)}" y="${T+ph+18}" text-anchor="middle" class="ax-tick">${v}</text>`;
   for (const v of [1,2,3,4,5]) s+=`<text x="${L-10}" y="${Y(v)+4}" text-anchor="end" class="ax-tick">${v}</text>`;
   s+=`<text x="${L+pw/2}" y="${H-8}" text-anchor="middle" class="ax-lbl">${esc(t('ui.overviewQuadrantXLabel'))} &#8594;</text>`;
   s+=`<text transform="translate(16 ${T+ph/2}) rotate(-90)" text-anchor="middle" class="ax-lbl">${esc(t('ui.overviewQuadrantYLabel'))} &#8594;</text>`;
@@ -6201,7 +6392,7 @@ function flashSaved(ok){
   clearTimeout(savedTimer); if (ok!==false) savedTimer=setTimeout(()=>{ el.className='save-state'; }, 1600);
 }
 function decorateMenus(){
-  const map=[['closeDropdowns();importData()','layers'],['importData()','upload'],['importCSVApps()','list'],['downloadCSVTemplate()','download'],['toggleDemo()','sparkles'],['exportAll()','download'],['exportCSV()','list'],['exportODF()','grid']];
+  const map=[['closeDropdowns();importData()','layers'],['importData()','upload'],['importCSVApps()','list'],['downloadCSVTemplate()','download'],['toggleDemo()','sparkles'],['exportAll()','download'],['exportCSV()','list'],['exportODF()','grid'],['openReport()','print']];
   document.querySelectorAll('.dropdown-item').forEach(b=>{ if (b.dataset.decorated) return; const oc=b.getAttribute('onclick')||''; const m=map.find(([f])=>oc.includes(f)); if (!m) return; b.dataset.decorated='1'; const w=document.createElement('span'); w.className='di-ic'; w.innerHTML=icon(m[1]); b.prepend(w); b.classList.add('with-ic'); });
   const tw=document.querySelector('.tab-wrapper'); if (tw && !document.getElementById('saveState')) { const s=document.createElement('span'); s.id='saveState'; s.className='save-state'; s.setAttribute('aria-live','polite'); tw.appendChild(s); }
 }
@@ -6388,6 +6579,49 @@ function bindRadarTips(rd, id){
   rd.addEventListener('click', e=>{ const t=e.target.closest && e.target.closest('[data-dim]'); if (!t) return; const row=document.getElementById(`dimRow-${id}-${t.dataset.dim}`); if (row) { hide(); row.scrollIntoView({behavior:'smooth', block:'start'}); } });
 }
 window.addEventListener('scroll', ()=>{ const el=document.getElementById('dimTip'); if (el) el.classList.remove('on'); }, {passive:true});
+
+// === RAPPORT (afdrukken of opslaan als PDF) ===
+// Een aparte afdrukweergave voor het management: dezelfde gegevens en filters als het overzicht, zonder schermknoppen.
+function openReport(){
+  const all=state.order.map((id,idx)=>{ const a=state.apps[id]; const mode=state.modes[id]||'full'; return {id,a,mode,r:calcApp(a,mode),p:getProfile(a),num:idx+1}; });
+  const q=ovf.q.trim().toLowerCase();
+  const L=all.filter(x=>{
+    if (q && ![x.a.name,x.a.appId,x.a.beoordelaar,x.a.organisatieonderdeel,x.a.leverancier].some(v=>(v||'').toLowerCase().includes(q))) return false;
+    if (ovf.org && (x.a.organisatieonderdeel||'').trim()!==ovf.org) return false;
+    if (ovf.lev && (x.a.leverancier||'').trim()!==ovf.lev) return false;
+    if (ovf.kw && x.r.kwadrant!==ovf.kw) return false;
+    return true;
+  });
+  if (!L.length) { showToast(esc(tx('reportEmpty'))); return; }
+  const S=L.filter(x=>x.r.score10!=null), nm=x=>esc(x.a.name||unnamed());
+  const uniq=new Set(L.map(x=>(x.a.name||'').trim().toLowerCase())).size;
+  const profs=[...new Set(L.map(x=>profName(x.p)))].join(', ');
+  const filt=[ovf.q&&'"'+ovf.q+'"', ovf.org, ovf.lev, ovf.kw&&quadLabel(ovf.kw)].filter(Boolean).join(' · ');
+  const avg=S.length?S.reduce((s,x)=>s+x.r.score10,0)/S.length:null;
+  const cnt={opt:0,beh:0,aan:0,kri:0}; S.forEach(x=>{ if (x.r.kwadrant) cnt[x.r.kwadrant]++; });
+  const date=new Date().toLocaleDateString(LANG==='nl'?'nl-NL':LANG, {day:'numeric',month:'long',year:'numeric'});
+  const row=x=>`<tr><td>${nm(x)}</td><td>${esc(x.a.organisatieonderdeel||'')}</td><td>${esc(x.a.leverancier||'')}</td><td class="c">${x.r.score10!=null?scorePill(x.r.score10):'--'}</td><td class="c">${quadPill(x.r.kwadrant)}</td></tr>`;
+  const thead=`<thead><tr><th>${esc(t('ui.overviewTableHeaderApp'))}</th><th>${esc(orgLabel())}</th><th>${esc(tx('vendor'))}</th><th class="c">${esc(t('ui.overviewTableHeaderScore'))}</th><th class="c">${esc(tx('rpQuad'))}</th></tr></thead>`;
+  const byScore=[...S].sort((a,b)=>a.r.score10-b.r.score10);
+  let h=`<header class="rp-head"><div><div class="rp-brand">DAAF</div><h1>${esc(tx('rpTitle'))}</h1><p>${esc(date)} · ${esc(tx('rpProfile'))}: ${esc(profs)}${filt?' · '+esc(tx('rpFilter'))+': '+esc(filt):''}</p></div></header>`;
+  h+=`<div class="rp-kpis"><div><b>${L.length}</b><span>${esc(tx('rpApps',{n:L.length,u:uniq}))}</span></div><div><b>${avg!=null?avg.toFixed(1):'--'}</b><span>${esc(tx('tileAvg'))}</span></div>`;
+  for (const k of ['kri','aan','beh','opt']) h+=`<div class="rp-k rp-${k}"><b>${cnt[k]}</b><span>${esc(quadLabel(k))}${S.length?' · '+Math.round(cnt[k]/S.length*100)+'%':''}</span></div>`;
+  h+='</div>';
+  h+=`<p class="rp-note">${esc(tx('rpExplain'))}</p>`;
+  const plotted=L.filter(x=>x.r.kwadrant);
+  if (plotted.length) h+=`<section class="rp-sec rp-quad"><h2>${esc(tx('quadTitle'))}</h2>${bubbleSVG(plotted,null).replace(/ filter="url\(#bubShadow\)"/g,'')}</section>`;
+  h+=`<section class="rp-sec"><h2>${esc(tx('rpLowest'))}</h2><table class="rp-tbl">${thead}<tbody>${byScore.slice(0,10).map(row).join('')}</tbody></table></section>`;
+  portfolioLeverCard(L); const G=Object.values(pfLeverData);
+  if (G.length) { h+=`<section class="rp-sec"><h2>${esc(tx('pfLeverTitle'))}</h2><p class="rp-note">${esc(tx('rpGainSub'))}</p><div class="rp-gain">`;
+    for (const {g,n,ttl} of G) h+=`<div><b>${g.ind.code} ${esc(ttl)}</b><span>${esc(tx('pfLeverOf',{k:g.k,n}))} ${esc(tx('pfLeverOfLbl'))}</span><em>${g.rows.slice(0,3).map(({x,l})=>nm(x)+' +'+l.d.toFixed(1)).join(', ')}</em></div>`;
+    h+='</div></section>'; }
+  h+=`<section class="rp-sec"><h2>${esc(tx('rpAll'))}</h2><table class="rp-tbl">${thead}<tbody>${[...byScore, ...L.filter(x=>x.r.score10==null)].map(row).join('')}</tbody></table></section>`;
+  h+=`<footer class="rp-foot">${esc(tx('rpFoot',{v:BUILD.version}))}</footer>`;
+  let el=document.getElementById('reportView'); if (!el) { el=document.createElement('div'); el.id='reportView'; document.body.appendChild(el); }
+  el.innerHTML=h; document.body.classList.add('report-mode');
+  const done=()=>{ document.body.classList.remove('report-mode'); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done); setTimeout(()=>window.print(), 50);
+}
 
 // === KEUZEMENU'S (vervangen de standaard browser-dropdowns) ===
 // openPicker() toont een gestileerde lijst bij een element. enhanceSelects() zet elke <select> om naar zo'n
